@@ -141,13 +141,19 @@ class Ui_MainWindow(object):
     def read_file(self):
         extension = self.fileName.split(".")[1]
         if extension == "csv":
-            self.data = pd.read_csv("Superstore.csv", encoding="ISO-8859-1")
-            for i, _type in enumerate(self.data.dtypes):
-                if _type == "O":
-                    self.dimensions.append(self.data.columns[i])
-                else:
-                    self.measurements.append(self.data.columns[i])
+            self.data = pd.read_csv(self.fileName, encoding="ISO-8859-1")
+            self.setDimensionsMeasurements()
+        elif extension == "xlsx":
+            self.data = pd.read_excel(self.fileName, engine='openpyxl')
+            self.setDimensionsMeasurements()
         self.set_listwidget()
+
+    def setDimensionsMeasurements(self):
+        for i, _type in enumerate(self.data.dtypes):
+            if _type == "O":
+                self.dimensions.append(self.data.columns[i])
+            else:
+                self.measurements.append(self.data.columns[i])
 
     def set_listwidget(self):
         for dimensions in self.dimensions:

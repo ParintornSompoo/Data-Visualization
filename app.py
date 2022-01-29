@@ -169,14 +169,16 @@ class Ui_MainWindow(object):
         self.update()
 
     def update(self, evt=None):
-        r = self.horizontalScrollBar.value() / ((1 + self.step) * 100)
-        l1 = self.limx[0] + r * np.diff(self.limx)
-        l2 = l1 + np.diff(self.limx) * self.step
-        v = self.verticalScrollBar.value() / ((1 + self.step) * 100)
-        l3 = self.limy[0] + v * np.diff(self.limy)
-        l4 = l3 + np.diff(self.limy) * self.step
-        self.chart_container.canvas.ax.set_xlim(l1, l2)
-        self.chart_container.canvas.ax.set_ylim(l4, l3)
+        if self.verticalchart:
+            r = self.horizontalScrollBar.value() / ((1 + self.step) * 100)
+            l1 = self.limx[0] + r * np.diff(self.limx)
+            l2 = l1 + np.diff(self.limx) * self.step
+            self.chart_container.canvas.ax.set_xlim(l1, l2)
+        else:
+            v = self.verticalScrollBar.value() / ((1 + self.step) * 100)
+            l3 = self.limy[0] + v * np.diff(self.limy)
+            l4 = l3 + np.diff(self.limy) * self.step
+            self.chart_container.canvas.ax.set_ylim(l4, l3)
         self.chart_container.canvas.draw_idle()
 
     def create_statistic(self):
@@ -193,6 +195,7 @@ class Ui_MainWindow(object):
         width = 0.35  # the width of the bars
 
         if columnitem[0].text() in self.dimensions:
+            self.verticalchart = True
             data = self.data.groupby(columnitem[0].text()).sum()[rowitems[0].text()]
             labels = list(data.index)
             values = list(data.values)
@@ -200,9 +203,9 @@ class Ui_MainWindow(object):
             rects1 = self.chart_container.canvas.ax.bar(x - width/2, values, width, label=rowitems[0].text())
             self.chart_container.canvas.ax.set_ylabel(rowitems[0].text())
             self.chart_container.canvas.ax.set_xticks(x, labels)
-            self.chart_container.canvas.ax.invert_yaxis()
             self.chart_container.canvas.ax.bar_label(rects1, padding=3)
         elif rowitems[0].text() in self.dimensions:
+            self.verticalchart = False
             data = self.data.groupby(rowitems[0].text()).sum()[columnitem[0].text()]
             labels = list(data.index)
             values = list(data.values)

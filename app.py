@@ -169,10 +169,10 @@ class Ui_MainWindow(object):
         self.update()
 
     def update(self, evt=None):
-        v = self.verticalScrollBar.value() / ((1 + self.step) * 100)
         r = self.horizontalScrollBar.value() / ((1 + self.step) * 100)
         l1 = self.limx[0] + r * np.diff(self.limx)
         l2 = l1 + np.diff(self.limx) * self.step
+        v = self.verticalScrollBar.value() / ((1 + self.step) * 100)
         l3 = self.limy[0] + v * np.diff(self.limy)
         l4 = l3 + np.diff(self.limy) * self.step
         self.chart_container.canvas.ax.set_xlim(l1, l2)
@@ -180,6 +180,7 @@ class Ui_MainWindow(object):
         self.chart_container.canvas.draw_idle()
 
     def create_statistic(self):
+        self.chart_container.canvas.ax.cla()        # clear previous plot
         # get row columns
         columnitem = []
         for index in range(self.columnlist.count()):
@@ -188,26 +189,33 @@ class Ui_MainWindow(object):
         for index in range(self.rowlist.count()):
             rowitems.append(self.rowlist.item(index))
         
-        if len(rowitems) > 0 and len(columnitem) > 0:
+        
+        width = 0.35  # the width of the bars
+
+        if columnitem[0].text() in self.dimensions:
             data = self.data.groupby(columnitem[0].text()).sum()[rowitems[0].text()]
+            labels = list(data.index)
+            values = list(data.values)
+            x = np.arange(len(labels))  # the label locations
+            rects1 = self.chart_container.canvas.ax.bar(x - width/2, values, width, label=rowitems[0].text())
+            self.chart_container.canvas.ax.set_ylabel(rowitems[0].text())
+            self.chart_container.canvas.ax.set_xticks(x, labels)
+            self.chart_container.canvas.ax.invert_yaxis()
+            self.chart_container.canvas.ax.bar_label(rects1, padding=3)
+        elif rowitems[0].text() in self.dimensions:
+            data = self.data.groupby(rowitems[0].text()).sum()[columnitem[0].text()]
+            labels = list(data.index)
+            values = list(data.values)
+            x = np.arange(len(labels))  # the label locations
+            rects2 = self.chart_container.canvas.ax.barh(x - width/2, values, width, label=columnitem[0].text())
+            self.chart_container.canvas.ax.set_xlabel(columnitem[0].text())
+            self.chart_container.canvas.ax.set_yticks(x, labels)
+            self.chart_container.canvas.ax.bar_label(rects2, padding=3)
         else:
             print("No row & column selected")
             return
-        self.chart_container.canvas.ax.cla()        # clear previous plot
-        labels = list(data.index)
-
-        values = list(data.values)
         
-        x = np.arange(len(labels))  # the label locations
-        width = 0.35  # the width of the bars
-        
-        rects1 = self.chart_container.canvas.ax.barh(x - width/2, values, width, label=rowitems[0].text())
-        
-        self.chart_container.canvas.ax.set_xlabel(rowitems[0].text())
-        self.chart_container.canvas.ax.set_yticks(x, labels)
         self.chart_container.canvas.ax.legend()
-        
-        self.chart_container.canvas.ax.bar_label(rects1, padding=3)
     
 
         self.chart_container.canvas.draw()

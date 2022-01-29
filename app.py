@@ -190,30 +190,33 @@ class Ui_MainWindow(object):
         rowitems = []
         for index in range(self.rowlist.count()):
             rowitems.append(self.rowlist.item(index))
-        
-        
-        width = 0.35  # the width of the bars
 
         if columnitem[0].text() in self.dimensions:
             self.verticalchart = True
-            data = self.data.groupby(columnitem[0].text()).sum()[rowitems[0].text()]
-            labels = list(data.index)
-            values = list(data.values)
-            x = np.arange(len(labels))  # the label locations
-            rects1 = self.chart_container.canvas.ax.bar(x - width/2, values, width, label=rowitems[0].text())
-            self.chart_container.canvas.ax.set_ylabel(rowitems[0].text())
-            self.chart_container.canvas.ax.set_xticks(x, labels)
-            self.chart_container.canvas.ax.bar_label(rects1, padding=3)
+            width = 0.5/len(rowitems)  # the width of the bars
+            for i, row_item in enumerate(rowitems):
+                data = self.data.groupby(columnitem[0].text()).sum()[row_item.text()]
+                labels = list(data.index)
+                values = list(data.values)
+                x = np.arange(len(labels))  # the label locations
+                rects1 = self.chart_container.canvas.ax.bar(x + width*i, values, width, label=row_item.text())
+                self.chart_container.canvas.ax.set_ylabel(row_item.text())
+                self.chart_container.canvas.ax.set_xticks(x + width*i, labels)
+                self.chart_container.canvas.ax.bar_label(rects1, padding=3)
+            
         elif rowitems[0].text() in self.dimensions:
             self.verticalchart = False
-            data = self.data.groupby(rowitems[0].text()).sum()[columnitem[0].text()]
-            labels = list(data.index)
-            values = list(data.values)
-            x = np.arange(len(labels))  # the label locations
-            rects2 = self.chart_container.canvas.ax.barh(x - width/2, values, width, label=columnitem[0].text())
-            self.chart_container.canvas.ax.set_xlabel(columnitem[0].text())
-            self.chart_container.canvas.ax.set_yticks(x, labels)
-            self.chart_container.canvas.ax.bar_label(rects2, padding=3)
+            width = 0.5/len(columnitem)  # the width of the bars
+            for i, column_item in enumerate(columnitem):
+                data = self.data.groupby(rowitems[0].text()).sum()[column_item.text()]
+                labels = list(data.index)
+                values = list(data.values)
+                x = np.arange(len(labels))  # the label locations
+                rects2 = self.chart_container.canvas.ax.barh(x + width*i, values, width, label=column_item.text())
+                self.chart_container.canvas.ax.set_xlabel(column_item.text())
+                self.chart_container.canvas.ax.set_yticks(x + width*i, labels)
+                self.chart_container.canvas.ax.bar_label(rects2, padding=3)
+
         else:
             print("No row & column selected")
             return

@@ -1,4 +1,5 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtCore import QCoreApplication
 
 
 class Ui_SecondWindow(object):
@@ -13,6 +14,7 @@ class Ui_SecondWindow(object):
         self.comboBox.addItem("")
         self.comboBox.addItem("")
         self.comboBox.addItem("")
+        self.comboBox.currentTextChanged.connect(self.on_combobox_changed)
         self.label = QtWidgets.QLabel(self.centralwidget)
         self.label.setGeometry(QtCore.QRect(30, 20, 221, 51))
         font = QtGui.QFont()
@@ -22,10 +24,16 @@ class Ui_SecondWindow(object):
         self.pushButton = QtWidgets.QPushButton(self.centralwidget)
         self.pushButton.setGeometry(QtCore.QRect(60, 200, 161, 28))
         self.pushButton.setObjectName("pushButton")
+        self.pushButton.clicked.connect(QCoreApplication.instance().quit)
+
         SecondWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(SecondWindow)
         QtCore.QMetaObject.connectSlotsByName(SecondWindow)
+        
+    def on_combobox_changed(self):
+        print("combobox changed")
+        # do your code
 
     def retranslateUi(self, SecondWindow):
         _translate = QtCore.QCoreApplication.translate

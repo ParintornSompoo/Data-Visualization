@@ -1,9 +1,11 @@
+from pickle import TRUE
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication, QListView
+from selectionwindow import Ui_SecondWindow
 
 
 class Ui_MainWindow(object):
@@ -166,10 +168,29 @@ class Ui_MainWindow(object):
     def getcolumnlistindex(self):
         print(self.columnlist.currentIndex().row())
         print(self.columnlist.currentItem().text())
+        if self.columnlist.currentItem().text() in self.measurements:
+            self.columnselected = True
+            self.secondwindow()
 
     def getrowlistindex(self):
         print(self.rowlist.currentIndex().row())
         print(self.rowlist.currentItem().text())
+        if self.rowlist.currentItem().text() in self.measurements:
+            self.columnselected = False
+            self.secondwindow()
+
+    def secondwindow(self):
+        _translate = QtCore.QCoreApplication.translate
+        self.window = QtWidgets.QMainWindow()
+        self.ui = Ui_SecondWindow()
+        self.ui.setupUi(self.window)
+        if self.columnselected:
+            self.ui.label.setText(_translate("SecondWindow", 
+            self.columnlist.currentItem().text()))
+        else:
+            self.ui.label.setText(_translate("SecondWindow", 
+            self.rowlist.currentItem().text()))
+        self.window.show()
 
     def setupSlider(self):
         self.limx = np.array(self.chart_container.canvas.ax.get_xlim())

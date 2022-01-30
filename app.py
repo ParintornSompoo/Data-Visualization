@@ -1,4 +1,4 @@
-from pickle import TRUE
+import sys
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -108,11 +108,13 @@ class Ui_MainWindow(object):
         self.verticalScrollBar.setGeometry(QtCore.QRect(360, 199, 20, 441))
         self.verticalScrollBar.setOrientation(QtCore.Qt.Vertical)
         self.verticalScrollBar.setObjectName("verticalScrollBar")
+        self.verticalScrollBar.hide()
 
         self.horizontalScrollBar = QtWidgets.QScrollBar(self.centralwidget)
         self.horizontalScrollBar.setGeometry(QtCore.QRect(380, 660, 671, 20))
         self.horizontalScrollBar.setOrientation(QtCore.Qt.Horizontal)
         self.horizontalScrollBar.setObjectName("horizontalScrollBar")
+        self.horizontalScrollBar.hide()
 
         self.statisticbtn = QtWidgets.QPushButton(self.frame_3)
         self.statisticbtn.setGeometry(QtCore.QRect(20, 10, 141, 41))
@@ -236,6 +238,8 @@ class Ui_MainWindow(object):
                 self.chart_container.canvas.ax.set_ylabel(row_item.text())
                 self.chart_container.canvas.ax.set_xticks(x + width*i, labels)
                 self.chart_container.canvas.ax.bar_label(rects1, padding=3)
+                self.verticalScrollBar.hide()
+                self.horizontalScrollBar.show()
 
         elif rowitems[0].text() in self.dimensions:
             self.verticalchart = False
@@ -251,6 +255,8 @@ class Ui_MainWindow(object):
                 self.chart_container.canvas.ax.set_xlabel(column_item.text())
                 self.chart_container.canvas.ax.set_yticks(x + width*i, labels)
                 self.chart_container.canvas.ax.bar_label(rects2, padding=3)
+                self.horizontalScrollBar.hide()
+                self.verticalScrollBar.show()
 
         else:
             print("No row & column selected")
@@ -279,7 +285,6 @@ class MplWidget(QtWidgets.QWidget):
 
 
 if __name__ == "__main__":
-    import sys
     app = QApplication(sys.argv)
     MainWindow = QMainWindow()
     ui = Ui_MainWindow(MainWindow)

@@ -71,6 +71,7 @@ class Ui_MainWindow(object):
         self.rowlist.setDragEnabled(True)
         self.rowlist.setAcceptDrops(True)
         self.rowlist.setDefaultDropAction(QtCore.Qt.MoveAction)
+        self.rowlist.doubleClicked.connect(lambda: self.getrowlistindex())
 
         self.columnlist = QtWidgets.QListWidget(self.frame_2)
         self.columnlist.setGeometry(QtCore.QRect(100, 20, 591, 31))
@@ -79,6 +80,7 @@ class Ui_MainWindow(object):
         self.columnlist.setAcceptDrops(True)
         self.columnlist.setDragEnabled(True)
         self.columnlist.setDefaultDropAction(QtCore.Qt.MoveAction)
+        self.columnlist.doubleClicked.connect(lambda: self.getcolumnlistindex())
 
         self.Rowlabel = QtWidgets.QLabel(self.frame_2)
         self.Rowlabel.setGeometry(QtCore.QRect(20, 70, 71, 21))
@@ -160,6 +162,14 @@ class Ui_MainWindow(object):
             self.dimensionlist.addItem(dimensions)
         for measurements in self.measurements:
             self.measurementlist.addItem(measurements)
+    
+    def getcolumnlistindex(self):
+        print(self.columnlist.currentIndex().row())
+        print(self.columnlist.currentItem().text())
+
+    def getrowlistindex(self):
+        print(self.rowlist.currentIndex().row())
+        print(self.rowlist.currentItem().text())
 
     def setupSlider(self):
         self.limx = np.array(self.chart_container.canvas.ax.get_xlim())
@@ -195,24 +205,28 @@ class Ui_MainWindow(object):
             self.verticalchart = True
             width = 0.5/len(rowitems)  # the width of the bars
             for i, row_item in enumerate(rowitems):
-                data = self.data.groupby(columnitem[0].text()).sum()[row_item.text()]
+                data = self.data.groupby(columnitem[0].text()).sum()[
+                    row_item.text()]
                 labels = list(data.index)
                 values = list(data.values)
                 x = np.arange(len(labels))  # the label locations
-                rects1 = self.chart_container.canvas.ax.bar(x + width*i, values, width, label=row_item.text())
+                rects1 = self.chart_container.canvas.ax.bar(
+                    x + width*i, values, width, label=row_item.text())
                 self.chart_container.canvas.ax.set_ylabel(row_item.text())
                 self.chart_container.canvas.ax.set_xticks(x + width*i, labels)
                 self.chart_container.canvas.ax.bar_label(rects1, padding=3)
-            
+
         elif rowitems[0].text() in self.dimensions:
             self.verticalchart = False
             width = 0.5/len(columnitem)  # the width of the bars
             for i, column_item in enumerate(columnitem):
-                data = self.data.groupby(rowitems[0].text()).sum()[column_item.text()]
+                data = self.data.groupby(rowitems[0].text()).sum()[
+                    column_item.text()]
                 labels = list(data.index)
                 values = list(data.values)
                 x = np.arange(len(labels))  # the label locations
-                rects2 = self.chart_container.canvas.ax.barh(x + width*i, values, width, label=column_item.text())
+                rects2 = self.chart_container.canvas.ax.barh(
+                    x + width*i, values, width, label=column_item.text())
                 self.chart_container.canvas.ax.set_xlabel(column_item.text())
                 self.chart_container.canvas.ax.set_yticks(x + width*i, labels)
                 self.chart_container.canvas.ax.bar_label(rects2, padding=3)
@@ -220,14 +234,13 @@ class Ui_MainWindow(object):
         else:
             print("No row & column selected")
             return
-        
+
         self.chart_container.canvas.ax.legend()
-    
 
         self.chart_container.canvas.draw()
         self.step = 3/len(labels)
         self.setupSlider()
-        
+
 
 class MplCanvas(FigureCanvas):
     def __init__(self):

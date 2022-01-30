@@ -31,11 +31,13 @@ class Ui_SecondWindow(object):
         self.retranslateUi(SecondWindow)
         QtCore.QMetaObject.connectSlotsByName(SecondWindow)
 
+        self.mode = self.comboBox.currentText()
+
     def close_window(self):
         self.secondwindow.close()
         
     def on_combobox_changed(self):
-        print("combobox changed")
+        self.mode = self.comboBox.currentText()
 
     def retranslateUi(self, SecondWindow):
         _translate = QtCore.QCoreApplication.translate

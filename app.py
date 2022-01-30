@@ -126,6 +126,10 @@ class Ui_MainWindow(object):
 
         self.statisticbtn.clicked.connect(self.create_statistic)
 
+        self.window = QtWidgets.QMainWindow()
+        self.ui = Ui_SecondWindow()
+        self.ui.setupUi(self.window)
+
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
@@ -183,9 +187,6 @@ class Ui_MainWindow(object):
 
     def secondwindow(self):
         _translate = QtCore.QCoreApplication.translate
-        self.window = QtWidgets.QMainWindow()
-        self.ui = Ui_SecondWindow()
-        self.ui.setupUi(self.window)
         if self.columnselected:
             self.ui.label.setText(_translate("SecondWindow", 
             self.columnlist.currentItem().text()))
@@ -215,6 +216,7 @@ class Ui_MainWindow(object):
         self.chart_container.canvas.draw_idle()
 
     def create_statistic(self):
+        print(self.ui.mode)
         self.chart_container.canvas.ax.cla()        # clear previous plot
         # get row columns
         columnitem = []

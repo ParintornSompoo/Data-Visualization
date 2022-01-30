@@ -14,7 +14,6 @@ class Ui_SecondWindow(object):
         self.comboBox.addItem("")
         self.comboBox.addItem("")
         self.comboBox.addItem("")
-        self.comboBox.currentTextChanged.connect(self.on_combobox_changed)
         self.label = QtWidgets.QLabel(self.centralwidget)
         self.label.setGeometry(QtCore.QRect(30, 20, 221, 51))
         font = QtGui.QFont()
@@ -36,9 +35,6 @@ class Ui_SecondWindow(object):
     def close_window(self):
         self.secondwindow.close()
         
-    def on_combobox_changed(self):
-        self.mode = self.comboBox.currentText()
-
     def retranslateUi(self, SecondWindow):
         _translate = QtCore.QCoreApplication.translate
         SecondWindow.setWindowTitle(_translate("SecondWindow", "SelectionWindow"))

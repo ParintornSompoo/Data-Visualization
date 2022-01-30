@@ -129,6 +129,11 @@ class Ui_MainWindow(object):
         self.window = QtWidgets.QMainWindow()
         self.ui = Ui_SecondWindow()
         self.ui.setupUi(self.window)
+        self.ui.comboBox.currentTextChanged.connect(self.on_combobox_changed)
+    
+    def on_combobox_changed(self):
+        self.mode = self.ui.comboBox.currentText()
+        print(self.mode)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -216,7 +221,7 @@ class Ui_MainWindow(object):
         self.chart_container.canvas.draw_idle()
 
     def create_statistic(self):
-        print(self.ui.mode)
+        # print(self.ui.mode)
         self.chart_container.canvas.ax.cla()        # clear previous plot
         # get row columns
         columnitem = []

@@ -1,3 +1,4 @@
+from operator import index
 import sys
 import numpy as np
 import pandas as pd
@@ -130,10 +131,6 @@ class Ui_MainWindow(object):
         self.ui = Ui_SecondWindow()
         self.ui.setupUi(self.window)
         self.ui.comboBox.currentTextChanged.connect(self.on_combobox_changed)
-    
-    def on_combobox_changed(self):
-        self.mode = self.ui.comboBox.currentText()
-        print(self.mode)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -172,32 +169,42 @@ class Ui_MainWindow(object):
 
     def set_listwidget(self):
         for dimensions in self.dimensions:
-            self.dimensionlist.addItem(dimensions)
+            i = Item(dimensions)
+            self.dimensionlist.addItem(i)
         for measurements in self.measurements:
-            self.measurementlist.addItem(measurements)
+            i = Item(measurements)
+            self.measurementlist.addItem(i)
     
     def getcolumnlistindex(self):
         print(self.columnlist.currentIndex().row())
         print(self.columnlist.currentItem().text())
         if self.columnlist.currentItem().text() in self.measurements:
+            i = Item(self.columnlist.currentItem().text())
+            self.index = self.columnlist.currentIndex().row()
+            self.columnlist.takeItem(self.index)
+            self.columnlist.insertItem(self.index,i)
             self.columnselected = True
-            self.secondwindow()
+            self.secondwindow(self.index)
 
     def getrowlistindex(self):
         print(self.rowlist.currentIndex().row())
         print(self.rowlist.currentItem().text())
         if self.rowlist.currentItem().text() in self.measurements:
+            i = Item(self.rowlist.currentItem().text())
+            self.index = self.rowlist.currentIndex().row()
+            self.rowlist.takeItem(self.index)
+            self.rowlist.insertItem(self.index,i)
             self.columnselected = False
-            self.secondwindow()
+            self.secondwindow(self.index)
 
-    def secondwindow(self):
+    def secondwindow(self, index):
         _translate = QtCore.QCoreApplication.translate
         if self.columnselected:
             self.ui.label.setText(_translate("SecondWindow", 
-            self.columnlist.currentItem().text()))
+            self.columnlist.item(index).text()))
         else:
             self.ui.label.setText(_translate("SecondWindow", 
-            self.rowlist.currentItem().text()))
+            self.rowlist.item(index).text()))
         self.window.show()
 
     def setupSlider(self):
@@ -220,8 +227,14 @@ class Ui_MainWindow(object):
             self.chart_container.canvas.ax.set_ylim(l4, l3)
         self.chart_container.canvas.draw_idle()
 
+    def on_combobox_changed(self):
+        mode = self.ui.comboBox.currentText()       # current selected mode
+        if self.columnselected:
+            index = self.index
+        else:
+            index = self.index
+        
     def create_statistic(self):
-        # print(self.ui.mode)
         self.chart_container.canvas.ax.cla()        # clear previous plot
         # get row columns
         columnitem = []
@@ -274,6 +287,12 @@ class Ui_MainWindow(object):
         self.chart_container.canvas.draw()
         self.step = 3/len(labels)
         self.setupSlider()
+
+class Item(QtWidgets.QListWidgetItem):
+    def __init__(self, *args, **kwargs):
+        self.mode = "Sum"
+        QtWidgets.QListWidgetItem.__init__(self, *args, **kwargs)
+
 
 
 class MplCanvas(FigureCanvas):

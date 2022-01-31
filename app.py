@@ -176,24 +176,22 @@ class Ui_MainWindow(object):
             self.measurementlist.addItem(i)
     
     def getcolumnlistindex(self):
-        print(self.columnlist.currentIndex().row())
-        print(self.columnlist.currentItem().text())
         if self.columnlist.currentItem().text() in self.measurements:
-            i = Item(self.columnlist.currentItem().text())
             self.index = self.columnlist.currentIndex().row()
-            self.columnlist.takeItem(self.index)
-            self.columnlist.insertItem(self.index,i)
+            if type(self.columnlist.currentItem()) != Item:
+                i = Item(self.columnlist.currentItem().text())
+                self.columnlist.takeItem(self.index)
+                self.columnlist.insertItem(self.index,i)
             self.columnselected = True
             self.secondwindow(self.index)
 
     def getrowlistindex(self):
-        print(self.rowlist.currentIndex().row())
-        print(self.rowlist.currentItem().text())
         if self.rowlist.currentItem().text() in self.measurements:
-            i = Item(self.rowlist.currentItem().text())
             self.index = self.rowlist.currentIndex().row()
-            self.rowlist.takeItem(self.index)
-            self.rowlist.insertItem(self.index,i)
+            if type(self.rowlist.currentItem()) != Item:
+                i = Item(self.rowlist.currentItem().text())
+                self.rowlist.takeItem(self.index)
+                self.rowlist.insertItem(self.index,i)
             self.columnselected = False
             self.secondwindow(self.index)
 
@@ -202,9 +200,11 @@ class Ui_MainWindow(object):
         if self.columnselected:
             self.ui.label.setText(_translate("SecondWindow", 
             self.columnlist.item(index).text()))
+            self.ui.comboBox.setCurrentText(self.columnlist.item(index).mode)
         else:
             self.ui.label.setText(_translate("SecondWindow", 
             self.rowlist.item(index).text()))
+            self.ui.comboBox.setCurrentText(self.rowlist.item(index).mode)
         self.window.show()
 
     def setupSlider(self):
@@ -230,9 +230,9 @@ class Ui_MainWindow(object):
     def on_combobox_changed(self):
         mode = self.ui.comboBox.currentText()       # current selected mode
         if self.columnselected:
-            index = self.index
+            self.columnlist.item(self.index).mode = mode
         else:
-            index = self.index
+            self.rowlist.item(self.index).mode = mode
         
     def create_statistic(self):
         self.chart_container.canvas.ax.cla()        # clear previous plot
@@ -292,7 +292,6 @@ class Item(QtWidgets.QListWidgetItem):
     def __init__(self, *args, **kwargs):
         self.mode = "Sum"
         QtWidgets.QListWidgetItem.__init__(self, *args, **kwargs)
-
 
 
 class MplCanvas(FigureCanvas):

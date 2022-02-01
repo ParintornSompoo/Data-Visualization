@@ -35,14 +35,12 @@ class Ui_MainWindow(object):
         self.dimensionlist.setObjectName("dimensionlist")
         self.dimensionlist.setDragEnabled(True)
         self.dimensionlist.setAcceptDrops(True)
-        self.dimensionlist.setDefaultDropAction(QtCore.Qt.MoveAction)
 
         self.measurementlist = QtWidgets.QListWidget(self.frame)
         self.measurementlist.setGeometry(QtCore.QRect(0, 390, 311, 241))
         self.measurementlist.setObjectName("measurementlist")
         self.measurementlist.setDragEnabled(True)
         self.measurementlist.setAcceptDrops(True)
-        self.measurementlist.setDefaultDropAction(QtCore.Qt.MoveAction)
 
         self.pushButton = QtWidgets.QPushButton(self.frame)
         self.pushButton.setGeometry(QtCore.QRect(20, 10, 221, 31))
@@ -161,8 +159,12 @@ class Ui_MainWindow(object):
         self.set_listwidget()
 
     def setDimensionsMeasurements(self):
-        for i, _type in enumerate(self.data.dtypes):
-            if _type == "O":
+        for i, col in enumerate(self.data.columns):
+            if self.data[col].dtypes == "O":
+                self.dimensions.append(self.data.columns[i])
+            elif col.lower().find("id") > 0:
+                self.dimensions.append(self.data.columns[i])
+            elif col.lower().find("code") > 0:
                 self.dimensions.append(self.data.columns[i])
             else:
                 self.measurements.append(self.data.columns[i])
@@ -248,8 +250,19 @@ class Ui_MainWindow(object):
             self.verticalchart = True
             width = 0.5/len(rowitems)  # the width of the bars
             for i, row_item in enumerate(rowitems):
-                data = self.data.groupby(columnitem[0].text()).sum()[
-                    row_item.text()]
+                if type(row_item) == Item:
+                    if row_item.mode == "Sum":
+                        data = self.data.groupby(columnitem[0].text()).sum()[
+                            row_item.text()]
+                    elif row_item.mode == "Average":
+                        data = self.data.groupby(columnitem[0].text()).mean()[
+                            row_item.text()]
+                    elif row_item.mode == "Median":
+                        data = self.data.groupby(columnitem[0].text()).median()[
+                            row_item.text()]
+                else:
+                    data = self.data.groupby(columnitem[0].text()).sum()[
+                        row_item.text()]
                 labels = list(data.index)
                 values = list(data.values)
                 x = np.arange(len(labels))  # the label locations
@@ -265,8 +278,19 @@ class Ui_MainWindow(object):
             self.verticalchart = False
             width = 0.5/len(columnitem)  # the width of the bars
             for i, column_item in enumerate(columnitem):
-                data = self.data.groupby(rowitems[0].text()).sum()[
-                    column_item.text()]
+                if type(column_item) == Item:
+                    if columnitem.mode == "Sum":
+                        data = self.data.groupby(rowitems[0].text()).sum()[
+                            columnitem.text()]
+                    elif columnitem.mode == "Average":
+                        data = self.data.groupby(rowitems[0].text()).mean()[
+                            columnitem.text()]
+                    elif columnitem.mode == "Median":
+                        data = self.data.groupby(rowitems[0].text()).median()[
+                            columnitem.text()]
+                else:
+                    data = self.data.groupby(rowitems[0].text()).sum()[
+                        column_item.text()]
                 labels = list(data.index)
                 values = list(data.values)
                 x = np.arange(len(labels))  # the label locations

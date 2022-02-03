@@ -1,3 +1,4 @@
+from re import S
 import sys
 import numpy as np
 import pandas as pd
@@ -20,6 +21,7 @@ class Ui_MainWindow(object):
         self.data = None
         self.dimensions = []
         self.measurements = []
+        self.MODE = {}
 
     def setupUi(self, MainWindow):
         self.centralwidget = QtWidgets.QWidget(MainWindow)
@@ -239,12 +241,19 @@ class Ui_MainWindow(object):
         if self.columnselected:
             self.ui.label.setText(_translate("SecondWindow", 
             self.columnlist.item(index).text()))
-            self.ui.comboBox.setCurrentText(self.columnlist.item(index).mode)
+            if self.columnlist.item(index).text() in self.MODE.keys():
+                self.ui.comboBox.setCurrentText(self.MODE[self.columnlist.item(index).text()])
+            else:
+                self.ui.comboBox.setCurrentText(self.columnlist.item(index).mode)
         else:
             self.ui.label.setText(_translate("SecondWindow", 
             self.rowlist.item(index).text()))
-            self.ui.comboBox.setCurrentText(self.rowlist.item(index).mode)
+            if self.rowlist.item(index).text() in self.MODE.keys():
+                self.ui.comboBox.setCurrentText(self.MODE[self.rowlist.item(index).text()])
+            else:
+                self.ui.comboBox.setCurrentText(self.rowlist.item(index).mode)
         self.window.show()
+        print(self.MODE)
 
     def datapreviewwindow(self):
        self.window2.show()
@@ -273,8 +282,11 @@ class Ui_MainWindow(object):
         mode = self.ui.comboBox.currentText()       # current selected mode
         if self.columnselected:
             self.columnlist.item(self.index).mode = mode
+            self.MODE[self.columnlist.item(self.index).text()] = mode
         else:
             self.rowlist.item(self.index).mode = mode
+            self.MODE[self.rowlist.item(self.index).text()] = mode
+        print(self.MODE)
         
     def create_statistic(self):
         self.chart_container.canvas.ax.cla()        # clear previous plot

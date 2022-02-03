@@ -1,4 +1,3 @@
-from operator import index
 import sys
 import numpy as np
 import pandas as pd
@@ -12,7 +11,7 @@ from selectionwindow import Ui_SecondWindow
 class Ui_MainWindow(object):
     def __init__(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1065, 737)
+        MainWindow.resize(1088, 762)
         self.setupUi(MainWindow)
 
         self.fileName = None
@@ -91,31 +90,51 @@ class Ui_MainWindow(object):
         self.Columnlabel.setFont(font)
         self.Columnlabel.setObjectName("Columnlabel")
 
-        self.frame_3 = QtWidgets.QFrame(self.centralwidget)
+        self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
+        self.tabWidget.setGeometry(QtCore.QRect(360, 120, 711, 621))
+        self.tabWidget.setObjectName("tabWidget")
+        self.tab = QtWidgets.QWidget()
+        self.tab.setObjectName("tab")
+        self.tableWidget = QtWidgets.QTableWidget(self.tab)
+        self.tableWidget.setGeometry(QtCore.QRect(20, 10, 671, 581))
+        self.tableWidget.setObjectName("tableWidget")
+        self.tableWidget.setColumnCount(1)
+        self.tableWidget.setRowCount(1)
+        item = QtWidgets.QTableWidgetItem()
+        self.tableWidget.setVerticalHeaderItem(0, item)
+        item = QtWidgets.QTableWidgetItem()
+        self.tableWidget.setHorizontalHeaderItem(0, item)
+        self.tabWidget.addTab(self.tab, "")
+        self.tab_2 = QtWidgets.QWidget()
+        self.tab_2.setObjectName("tab_2")
+
+        self.frame_3 = QtWidgets.QFrame(self.tab_2)
         self.frame_3.setGeometry(QtCore.QRect(380, 130, 661, 511))
         self.frame_3.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_3.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_3.setObjectName("frame_3")
 
-        self.chart_container = MplWidget(self.frame_3)
+
+        self.chart_container = MplWidget(self.tab_2)
         self.chart_container.setGeometry(QtCore.QRect(10, 60, 641, 421))
         self.chart_container.setObjectName("chart_container")
 
-        self.verticalScrollBar = QtWidgets.QScrollBar(self.centralwidget)
-        self.verticalScrollBar.setGeometry(QtCore.QRect(360, 199, 20, 441))
+        self.verticalScrollBar = QtWidgets.QScrollBar(self.tab_2)
+        self.verticalScrollBar.setGeometry(QtCore.QRect(10, 70, 20, 441))
         self.verticalScrollBar.setOrientation(QtCore.Qt.Vertical)
         self.verticalScrollBar.setObjectName("verticalScrollBar")
         self.verticalScrollBar.hide()
 
-        self.horizontalScrollBar = QtWidgets.QScrollBar(self.centralwidget)
-        self.horizontalScrollBar.setGeometry(QtCore.QRect(380, 660, 671, 20))
+        self.horizontalScrollBar = QtWidgets.QScrollBar(self.tab_2)
+        self.horizontalScrollBar.setGeometry(QtCore.QRect(30, 530, 671, 20))
         self.horizontalScrollBar.setOrientation(QtCore.Qt.Horizontal)
         self.horizontalScrollBar.setObjectName("horizontalScrollBar")
         self.horizontalScrollBar.hide()
 
-        self.statisticbtn = QtWidgets.QPushButton(self.frame_3)
+        self.statisticbtn = QtWidgets.QPushButton(self.tab_2)
         self.statisticbtn.setGeometry(QtCore.QRect(20, 10, 141, 41))
         self.statisticbtn.setObjectName("statisticbtn")
+        self.tabWidget.addTab(self.tab_2, "")
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
@@ -137,6 +156,13 @@ class Ui_MainWindow(object):
         self.Rowlabel.setText(_translate("MainWindow", "Row"))
         self.Columnlabel.setText(_translate("MainWindow", "Column"))
         self.statisticbtn.setText(_translate("MainWindow", "Statistic"))
+        item = self.tableWidget.verticalHeaderItem(0)
+        item.setText(_translate("MainWindow", "test"))
+        item = self.tableWidget.horizontalHeaderItem(0)
+        item.setText(_translate("MainWindow", "test"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Tab 1"))
+        self.statisticbtn.setText(_translate("MainWindow", "Statistic"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Tab 2"))
 
     def file_selected(self):
         options = QFileDialog.Options()

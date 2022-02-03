@@ -61,7 +61,7 @@ class Ui_MainWindow(object):
         self.viewdata_button = QtWidgets.QPushButton(self.frame)
         self.viewdata_button.setGeometry(QtCore.QRect(10, 640, 231, 28))
         self.viewdata_button.setObjectName("pushButton_2")
-        self.viewdata_button.clicked.connect(lambda: self.datawindow())
+        self.viewdata_button.clicked.connect(lambda: self.datapreviewwindow())
 
         self.frame_2 = QtWidgets.QFrame(self.centralwidget)
         self.frame_2.setGeometry(QtCore.QRect(350, 10, 701, 111))
@@ -165,7 +165,7 @@ class Ui_MainWindow(object):
         self.pushButton.setText(_translate("MainWindow", "Select File"))
         self.Dimensionlabel.setText(_translate("MainWindow", "Dimension"))
         self.measurementlabel.setText(_translate("MainWindow", "Measurement"))
-        self.pushButton_2.setText(_translate("MainWindow", "View Data"))
+        self.viewdata_button.setText(_translate("MainWindow", "View Data"))
         self.Rowlabel.setText(_translate("MainWindow", "Row"))
         self.Columnlabel.setText(_translate("MainWindow", "Column"))
         self.statisticbtn.setText(_translate("MainWindow", "Statistic"))

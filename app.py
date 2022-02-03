@@ -253,7 +253,6 @@ class Ui_MainWindow(object):
             else:
                 self.ui.comboBox.setCurrentText(self.rowlist.item(index).mode)
         self.window.show()
-        print(self.MODE)
 
     def datapreviewwindow(self):
        self.window2.show()
@@ -286,8 +285,7 @@ class Ui_MainWindow(object):
         else:
             self.rowlist.item(self.index).mode = mode
             self.MODE[self.rowlist.item(self.index).text()] = mode
-        print(self.MODE)
-        
+   
     def create_statistic(self):
         self.chart_container.canvas.ax.cla()        # clear previous plot
         # get row columns
@@ -302,14 +300,14 @@ class Ui_MainWindow(object):
             self.verticalchart = True
             width = 0.5/len(rowitems)  # the width of the bars
             for i, row_item in enumerate(rowitems):
-                if type(row_item) == Item:
-                    if row_item.mode == "Sum":
+                if row_item.text() in self.MODE.keys():
+                    if self.MODE[row_item.text()] == "Sum":
                         data = self.data.groupby(columnitem[0].text()).sum()[
                             row_item.text()]
-                    elif row_item.mode == "Average":
+                    elif self.MODE[row_item.text()] == "Average":
                         data = self.data.groupby(columnitem[0].text()).mean()[
                             row_item.text()]
-                    elif row_item.mode == "Median":
+                    elif self.MODE[row_item.text()] == "Median":
                         data = self.data.groupby(columnitem[0].text()).median()[
                             row_item.text()]
                 else:
@@ -330,14 +328,14 @@ class Ui_MainWindow(object):
             self.verticalchart = False
             width = 0.5/len(columnitem)  # the width of the bars
             for i, column_item in enumerate(columnitem):
-                if type(column_item) == Item:
-                    if column_item.mode == "Sum":
+                if column_item.text() in self.MODE.keys():
+                    if self.MODE[column_item.text()] == "Sum":
                         data = self.data.groupby(rowitems[0].text()).sum()[
                             column_item.text()]
-                    elif column_item.mode == "Average":
+                    elif self.MODE[column_item.text()] == "Average":
                         data = self.data.groupby(rowitems[0].text()).mean()[
                             column_item.text()]
-                    elif column_item.mode == "Median":
+                    elif self.MODE[column_item.text()] == "Median":
                         data = self.data.groupby(rowitems[0].text()).median()[
                             column_item.text()]
                 else:

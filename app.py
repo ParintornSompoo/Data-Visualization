@@ -279,15 +279,15 @@ class Ui_MainWindow(object):
             width = 0.5/len(columnitem)  # the width of the bars
             for i, column_item in enumerate(columnitem):
                 if type(column_item) == Item:
-                    if columnitem.mode == "Sum":
+                    if column_item.mode == "Sum":
                         data = self.data.groupby(rowitems[0].text()).sum()[
-                            columnitem.text()]
-                    elif columnitem.mode == "Average":
+                            column_item.text()]
+                    elif column_item.mode == "Average":
                         data = self.data.groupby(rowitems[0].text()).mean()[
-                            columnitem.text()]
-                    elif columnitem.mode == "Median":
+                            column_item.text()]
+                    elif column_item.mode == "Median":
                         data = self.data.groupby(rowitems[0].text()).median()[
-                            columnitem.text()]
+                            column_item.text()]
                 else:
                     data = self.data.groupby(rowitems[0].text()).sum()[
                         column_item.text()]

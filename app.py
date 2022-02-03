@@ -34,13 +34,11 @@ class Ui_MainWindow(object):
         self.dimensionlist.setGeometry(QtCore.QRect(0, 90, 311, 241))
         self.dimensionlist.setObjectName("dimensionlist")
         self.dimensionlist.setDragEnabled(True)
-        self.dimensionlist.setAcceptDrops(True)
 
         self.measurementlist = QtWidgets.QListWidget(self.frame)
         self.measurementlist.setGeometry(QtCore.QRect(0, 390, 311, 241))
         self.measurementlist.setObjectName("measurementlist")
         self.measurementlist.setDragEnabled(True)
-        self.measurementlist.setAcceptDrops(True)
 
         self.pushButton = QtWidgets.QPushButton(self.frame)
         self.pushButton.setGeometry(QtCore.QRect(20, 10, 221, 31))

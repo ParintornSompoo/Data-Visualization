@@ -53,15 +53,15 @@ class Ui_MainWindow(object):
         font.setPointSize(16)
         self.Dimensionlabel.setFont(font)
         self.Dimensionlabel.setObjectName("Dimensionlabel")
-        self.neasurementlabel = QtWidgets.QLabel(self.frame)
-        self.neasurementlabel.setGeometry(QtCore.QRect(10, 350, 181, 31))
-        self.neasurementlabel.setFont(font)
-        self.neasurementlabel.setObjectName("neasurementlabel")
+        self.measurementlabel = QtWidgets.QLabel(self.frame)
+        self.measurementlabel.setGeometry(QtCore.QRect(10, 350, 181, 31))
+        self.measurementlabel.setFont(font)
+        self.measurementlabel.setObjectName("measurementlabel")
 
-        self.pushButton_2 = QtWidgets.QPushButton(self.frame)
-        self.pushButton_2.setGeometry(QtCore.QRect(10, 640, 231, 28))
-        self.pushButton_2.setObjectName("pushButton_2")
-        self.pushButton_2.clicked.connect(lambda: self.datawindow())
+        self.viewdata_button = QtWidgets.QPushButton(self.frame)
+        self.viewdata_button.setGeometry(QtCore.QRect(10, 640, 231, 28))
+        self.viewdata_button.setObjectName("pushButton_2")
+        self.viewdata_button.clicked.connect(lambda: self.datawindow())
 
         self.frame_2 = QtWidgets.QFrame(self.centralwidget)
         self.frame_2.setGeometry(QtCore.QRect(350, 10, 701, 111))
@@ -164,7 +164,7 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.pushButton.setText(_translate("MainWindow", "Select File"))
         self.Dimensionlabel.setText(_translate("MainWindow", "Dimension"))
-        self.neasurementlabel.setText(_translate("MainWindow", "Measurement"))
+        self.measurementlabel.setText(_translate("MainWindow", "Measurement"))
         self.pushButton_2.setText(_translate("MainWindow", "View Data"))
         self.Rowlabel.setText(_translate("MainWindow", "Row"))
         self.Columnlabel.setText(_translate("MainWindow", "Column"))
@@ -246,7 +246,7 @@ class Ui_MainWindow(object):
             self.ui.comboBox.setCurrentText(self.rowlist.item(index).mode)
         self.window.show()
 
-    def datawindow(self):
+    def datapreviewwindow(self):
        self.window2.show()
 
     def setupSlider(self):

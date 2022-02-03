@@ -6,6 +6,8 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication, QListView
 from selectionwindow import Ui_SecondWindow
+from DatapreviewWindow import Ui_DatapreviewWindow
+
 
 
 class Ui_MainWindow(object):
@@ -55,6 +57,11 @@ class Ui_MainWindow(object):
         self.neasurementlabel.setGeometry(QtCore.QRect(10, 350, 181, 31))
         self.neasurementlabel.setFont(font)
         self.neasurementlabel.setObjectName("neasurementlabel")
+
+        self.pushButton_2 = QtWidgets.QPushButton(self.frame)
+        self.pushButton_2.setGeometry(QtCore.QRect(10, 640, 231, 28))
+        self.pushButton_2.setObjectName("pushButton_2")
+        self.pushButton_2.clicked.connect(lambda: self.datawindow())
 
         self.frame_2 = QtWidgets.QFrame(self.centralwidget)
         self.frame_2.setGeometry(QtCore.QRect(350, 10, 701, 111))
@@ -147,12 +154,18 @@ class Ui_MainWindow(object):
         self.ui.setupUi(self.window)
         self.ui.comboBox.currentTextChanged.connect(self.on_combobox_changed)
 
+
+        self.window2 = QtWidgets.QMainWindow()
+        self.ui2 = Ui_DatapreviewWindow()
+        self.ui2.setupUi(self.window2)
+
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.pushButton.setText(_translate("MainWindow", "Select File"))
         self.Dimensionlabel.setText(_translate("MainWindow", "Dimension"))
         self.neasurementlabel.setText(_translate("MainWindow", "Measurement"))
+        self.pushButton_2.setText(_translate("MainWindow", "View Data"))
         self.Rowlabel.setText(_translate("MainWindow", "Row"))
         self.Columnlabel.setText(_translate("MainWindow", "Column"))
         self.statisticbtn.setText(_translate("MainWindow", "Statistic"))
@@ -232,6 +245,9 @@ class Ui_MainWindow(object):
             self.rowlist.item(index).text()))
             self.ui.comboBox.setCurrentText(self.rowlist.item(index).mode)
         self.window.show()
+
+    def datawindow(self):
+       self.window2.show()
 
     def setupSlider(self):
         self.limx = np.array(self.chart_container.canvas.ax.get_xlim())

@@ -5,34 +5,49 @@ class Ui_DatapreviewWindow(object):
     def setupUi(self, DatapreviewWindow):
         DatapreviewWindow.setObjectName("DatapreviewWindow")
         DatapreviewWindow.resize(1139, 764)
+
         self.centralwidget = QtWidgets.QWidget(DatapreviewWindow)
         self.centralwidget.setObjectName("centralwidget")
+
         self.tableWidget = QtWidgets.QTableWidget(self.centralwidget)
         self.tableWidget.setGeometry(QtCore.QRect(340, 10, 781, 721))
         self.tableWidget.setObjectName("tableWidget")
         self.tableWidget.setColumnCount(0)
         self.tableWidget.setRowCount(0)
+
         self.Dimensionlabel = QtWidgets.QLabel(self.centralwidget)
         self.Dimensionlabel.setGeometry(QtCore.QRect(20, 20, 141, 31))
+
         font = QtGui.QFont()
         font.setPointSize(16)
+
         self.Dimensionlabel.setFont(font)
         self.Dimensionlabel.setObjectName("Dimensionlabel")
+
         self.pushButton_2 = QtWidgets.QPushButton(self.centralwidget)
         self.pushButton_2.setGeometry(QtCore.QRect(20, 620, 231, 28))
         self.pushButton_2.setObjectName("pushButton_2")
+
         self.dimensionlist = QtWidgets.QListWidget(self.centralwidget)
         self.dimensionlist.setGeometry(QtCore.QRect(10, 60, 311, 241))
         self.dimensionlist.setObjectName("dimensionlist")
+        self.dimensionlist.setDragEnabled(True)
+        self.dimensionlist.setAcceptDrops(True)
+        self.dimensionlist.setDefaultDropAction(QtCore.Qt.MoveAction)
+
         self.measurementlist = QtWidgets.QListWidget(self.centralwidget)
         self.measurementlist.setGeometry(QtCore.QRect(10, 360, 311, 241))
         self.measurementlist.setObjectName("measurementlist")
+        self.measurementlist.setDragEnabled(True)
+        self.measurementlist.setAcceptDrops(True)
+        self.measurementlist.setDefaultDropAction(QtCore.Qt.MoveAction)
+
         self.neasurementlabel = QtWidgets.QLabel(self.centralwidget)
         self.neasurementlabel.setGeometry(QtCore.QRect(20, 320, 181, 31))
-        font = QtGui.QFont()
-        font.setPointSize(16)
+
         self.neasurementlabel.setFont(font)
         self.neasurementlabel.setObjectName("neasurementlabel")
+
         DatapreviewWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(DatapreviewWindow)

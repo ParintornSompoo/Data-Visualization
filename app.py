@@ -258,7 +258,13 @@ class Ui_MainWindow(object):
         self.window.show()
 
     def datapreviewwindow(self):
-       self.window2.show()
+        self.ui2.dimensionlist.clear()
+        self.ui2.measurementlist.clear()
+        for dimension in self.dimensions:
+            self.ui2.dimensionlist.addItem(dimension)
+        for measurement in self.measurements:
+            self.ui2.measurementlist.addItem(measurement)
+        self.window2.show()
 
     def setupSlider(self):
         self.limx = np.array(self.chart_container.canvas.ax.get_xlim())

@@ -188,7 +188,10 @@ class Ui_MainWindow(object):
             self.read_file()
 
     def read_file(self):
-        extension = self.fileName.split(".")[1]
+        if self.fileName != "":
+            extension = self.fileName.split(".")[-1]
+        else:
+            return
         if extension == "csv":
             self.data = pd.read_csv(self.fileName, encoding="ISO-8859-1")
             self.setDimensionsMeasurements()

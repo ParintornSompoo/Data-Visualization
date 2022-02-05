@@ -300,22 +300,22 @@ class Ui_MainWindow(object):
             agg = self.MODE
             if measurement not in self.MODE.keys():
                 agg[measurement] = "sum"
-        if len(dimensions) == 1 and len(measurements) == 1:
-            data = self.data.groupby(dimensions).agg(agg)
+        if len(dimensions) > 0 and len(measurements) > 0:
+            data = self.data.groupby(dimensions, as_index=False).agg(agg)
             print(data)
             # set row,column count
-            self.tableWidget.setRowCount(len(data.index))
-            self.tableWidget.setColumnCount(len(data.columns))
+            self.tableWidget.setRowCount(len(data.index.tolist()))
+            self.tableWidget.setColumnCount(len(data.columns.tolist()))
             # set header
-            for i, column in enumerate(data.columns):
+            for i, column in enumerate(data.columns.tolist()):
                 item = QtWidgets.QTableWidgetItem(column)
                 self.tableWidget.setHorizontalHeaderItem(i, item)
-            for i, index in enumerate(data.index):
+            for i, index in enumerate(data.index.tolist()):
                 item = QtWidgets.QTableWidgetItem(index)
                 self.tableWidget.setVerticalHeaderItem(i, item)
             # set data
-            for i in range(len(data.index)):
-                for j in range(len(data.columns)):
+            for i in range(len(data.index.tolist())):
+                for j in range(len(data.columns.tolist())):
                     item = QtWidgets.QTableWidgetItem(str(data.iloc[i][j]))
                     self.tableWidget.setItem(i, j, item)
 

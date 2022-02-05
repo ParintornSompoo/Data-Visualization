@@ -160,6 +160,7 @@ class Ui_MainWindow(object):
         self.window2 = QtWidgets.QMainWindow()
         self.ui2 = Ui_DatapreviewWindow()
         self.ui2.setupUi(self.window2)
+        self.ui2.pushButton_2.clicked.connect(self.reset_dimension_measure)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -258,22 +259,42 @@ class Ui_MainWindow(object):
         self.window.show()
 
     def datapreviewwindow(self):
+        # clear dimensions, measurements Qlistwidget
         self.ui2.dimensionlist.clear()
         self.ui2.measurementlist.clear()
+        # add item to Qlistwidget
         for dimension in self.dimensions:
             self.ui2.dimensionlist.addItem(dimension)
         for measurement in self.measurements:
             self.ui2.measurementlist.addItem(measurement)
-        self.window2.show()
+        self.window2.show()     # show data preview window
 
-    def setupSlider(self):
+    def reset_dimension_measure(self):
+        # clear old dimensions, measurements
+        self.dimensions = []
+        self.measurements = []
+        # set new dimensions, measurements from QListWidget
+        for index in range(self.ui2.dimensionlist.count()):
+            self.dimensions.append(self.ui2.dimensionlist.item(index).text())
+        for index in range(self.ui2.measurementlist.count()):
+            self.measurements.append(self.ui2.measurementlist.item(index).text())
+        # set new dimensions, measurements in mainwindow
+        self.dimensionlist.clear()
+        self.measurementlist.clear()
+        for dimension in self.dimensions:
+            self.dimensionlist.addItem(dimension)
+        for measurement in self.measurements:
+            self.measurementlist.addItem(measurement)
+        self.window2.hide()
+
+    def setupSlider(self):          # setting up slider
         self.limx = np.array(self.chart_container.canvas.ax.get_xlim())
         self.limy = np.array(self.chart_container.canvas.ax.get_ylim())
         self.horizontalScrollBar.actionTriggered.connect(self.update)
         self.verticalScrollBar.actionTriggered.connect(self.update)
         self.update()
 
-    def update(self, evt=None):
+    def update(self, evt=None):     # update slider
         if self.verticalchart:
             r = self.horizontalScrollBar.value() / ((1 + self.step) * 100)
             l1 = self.limx[0] + r * np.diff(self.limx)

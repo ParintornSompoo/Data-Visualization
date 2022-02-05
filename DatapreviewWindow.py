@@ -60,6 +60,24 @@ class Ui_DatapreviewWindow(object):
         self.pushButton_2.setText(_translate("DatapreviewWindow", "Comfirm"))
         self.neasurementlabel.setText(_translate("DatapreviewWindow", "Measurement"))
 
+    def show_data(self, data):
+        # set row,column count
+        self.tableWidget.setRowCount(100)
+        self.tableWidget.setColumnCount(len(data.columns))
+        # set header
+        for i, column in enumerate(data.columns):
+            item = QtWidgets.QTableWidgetItem(column)
+            self.tableWidget.setHorizontalHeaderItem(i, item)
+        for i, index in enumerate(data.index):
+            item = QtWidgets.QTableWidgetItem(index)
+            self.tableWidget.setVerticalHeaderItem(i, item)
+        # set data
+        for i in range(len(data.index)):
+            for j in range(len(data.columns)):
+                if i > 100:
+                    break
+                item = QtWidgets.QTableWidgetItem(str(data.iloc[i][j]))
+                self.tableWidget.setItem(i, j, item)
 
 if __name__ == "__main__":
     import sys

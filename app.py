@@ -63,7 +63,7 @@ class Ui_MainWindow(object):
         self.viewdata_button = QtWidgets.QPushButton(self.frame)
         self.viewdata_button.setGeometry(QtCore.QRect(10, 640, 231, 28))
         self.viewdata_button.setObjectName("pushButton_2")
-        self.viewdata_button.clicked.connect(lambda: self.datapreviewwindow())
+        self.viewdata_button.clicked.connect(self.datapreviewwindow)
 
         self.frame_2 = QtWidgets.QFrame(self.centralwidget)
         self.frame_2.setGeometry(QtCore.QRect(350, 10, 701, 111))
@@ -78,7 +78,8 @@ class Ui_MainWindow(object):
         self.rowlist.setDragEnabled(True)
         self.rowlist.setAcceptDrops(True)
         self.rowlist.setDefaultDropAction(QtCore.Qt.MoveAction)
-        self.rowlist.doubleClicked.connect(lambda: self.getrowlistindex())
+        self.rowlist.doubleClicked.connect(self.getrowlistindex)
+        self.rowlist.itemChanged.connect(self.set_grid_table)
 
         self.columnlist = QtWidgets.QListWidget(self.frame_2)
         self.columnlist.setGeometry(QtCore.QRect(100, 20, 591, 31))
@@ -87,7 +88,8 @@ class Ui_MainWindow(object):
         self.columnlist.setAcceptDrops(True)
         self.columnlist.setDragEnabled(True)
         self.columnlist.setDefaultDropAction(QtCore.Qt.MoveAction)
-        self.columnlist.doubleClicked.connect(lambda: self.getcolumnlistindex())
+        self.columnlist.doubleClicked.connect(self.getcolumnlistindex)
+        self.columnlist.itemChanged.connect(self.set_grid_table)
 
         self.Rowlabel = QtWidgets.QLabel(self.frame_2)
         self.Rowlabel.setGeometry(QtCore.QRect(20, 70, 71, 21))
@@ -107,12 +109,6 @@ class Ui_MainWindow(object):
         self.tableWidget = QtWidgets.QTableWidget(self.tab)
         self.tableWidget.setGeometry(QtCore.QRect(20, 10, 671, 581))
         self.tableWidget.setObjectName("tableWidget")
-        self.tableWidget.setColumnCount(1)
-        self.tableWidget.setRowCount(1)
-        item = QtWidgets.QTableWidgetItem()
-        self.tableWidget.setVerticalHeaderItem(0, item)
-        item = QtWidgets.QTableWidgetItem()
-        self.tableWidget.setHorizontalHeaderItem(0, item)
         self.tabWidget.addTab(self.tab, "")
         self.tab_2 = QtWidgets.QWidget()
         self.tab_2.setObjectName("tab_2")
@@ -172,13 +168,9 @@ class Ui_MainWindow(object):
         self.Rowlabel.setText(_translate("MainWindow", "Row"))
         self.Columnlabel.setText(_translate("MainWindow", "Column"))
         self.statisticbtn.setText(_translate("MainWindow", "Statistic"))
-        item = self.tableWidget.verticalHeaderItem(0)
-        item.setText(_translate("MainWindow", "test"))
-        item = self.tableWidget.horizontalHeaderItem(0)
-        item.setText(_translate("MainWindow", "test"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Tab 1"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Grid Table"))
         self.statisticbtn.setText(_translate("MainWindow", "Statistic"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Tab 2"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Plot"))
 
     def file_selected(self):
         options = QFileDialog.Options()
@@ -267,6 +259,7 @@ class Ui_MainWindow(object):
             self.ui2.dimensionlist.addItem(dimension)
         for measurement in self.measurements:
             self.ui2.measurementlist.addItem(measurement)
+        self.ui2.show_data(self.data)
         self.window2.show()     # show data preview window
 
     def reset_dimension_measure(self):
@@ -286,6 +279,45 @@ class Ui_MainWindow(object):
         for measurement in self.measurements:
             self.measurementlist.addItem(measurement)
         self.window2.hide()
+
+    def set_grid_table(self):
+        dimensions = []
+        measurements = []
+        for index in range(self.rowlist.count()):
+            item = self.rowlist.item(index).text()
+            if item in self.dimensions:
+                dimensions.append(item)
+            else:
+                measurements.append(item)
+        for index in range(self.columnlist.count()):
+            item = self.columnlist.item(index).text()
+            if item in self.dimensions:
+                dimensions.append(item)
+            else:
+                measurements.append(item)
+        agg = {}
+        for measurement in measurements:
+            agg = self.MODE
+            if measurement not in self.MODE.keys():
+                agg[measurement] = "sum"
+        if len(dimensions) == 1 and len(measurements) == 1:
+            data = self.data.groupby(dimensions).agg(agg)
+            print(data)
+            # set row,column count
+            self.tableWidget.setRowCount(len(data.index))
+            self.tableWidget.setColumnCount(len(data.columns))
+            # set header
+            for i, column in enumerate(data.columns):
+                item = QtWidgets.QTableWidgetItem(column)
+                self.tableWidget.setHorizontalHeaderItem(i, item)
+            for i, index in enumerate(data.index):
+                item = QtWidgets.QTableWidgetItem(index)
+                self.tableWidget.setVerticalHeaderItem(i, item)
+            # set data
+            for i in range(len(data.index)):
+                for j in range(len(data.columns)):
+                    item = QtWidgets.QTableWidgetItem(str(data.iloc[i][j]))
+                    self.tableWidget.setItem(i, j, item)
 
     def setupSlider(self):          # setting up slider
         self.limx = np.array(self.chart_container.canvas.ax.get_xlim())
@@ -333,17 +365,17 @@ class Ui_MainWindow(object):
                 mode = None
                 if row_item.text() in self.MODE.keys():
                     mode = self.MODE[row_item.text()]
-                    if mode == "Sum":
+                    if mode == "sum":
                         data = self.data.groupby(columnitem[0].text()).sum()[
                             row_item.text()]
-                    elif mode == "Average":
+                    elif mode == "mean":
                         data = self.data.groupby(columnitem[0].text()).mean()[
                             row_item.text()]
-                    elif mode == "Median":
+                    elif mode == "median":
                         data = self.data.groupby(columnitem[0].text()).median()[
                             row_item.text()]
                 else:
-                    mode = "Sum"
+                    mode = "sum"
                     data = self.data.groupby(columnitem[0].text()).sum()[
                         row_item.text()]
                 labels = list(data.index)
@@ -364,17 +396,17 @@ class Ui_MainWindow(object):
                 mode = None
                 if column_item.text() in self.MODE.keys():
                     mode = self.MODE[column_item.text()]
-                    if mode == "Sum":
+                    if mode == "sum":
                         data = self.data.groupby(rowitems[0].text()).sum()[
                             column_item.text()]
-                    elif mode == "Average":
+                    elif mode == "mean":
                         data = self.data.groupby(rowitems[0].text()).mean()[
                             column_item.text()]
-                    elif mode == "Median":
+                    elif mode == "median":
                         data = self.data.groupby(rowitems[0].text()).median()[
                             column_item.text()]
                 else:
-                    mode = "Sum"
+                    mode = "sum"
                     data = self.data.groupby(rowitems[0].text()).sum()[
                         column_item.text()]
                 labels = list(data.index)
@@ -400,7 +432,7 @@ class Ui_MainWindow(object):
 
 class Item(QtWidgets.QListWidgetItem):
     def __init__(self, *args, **kwargs):
-        self.mode = "Sum"
+        self.mode = "sum"
         QtWidgets.QListWidgetItem.__init__(self, *args, **kwargs)
 
 

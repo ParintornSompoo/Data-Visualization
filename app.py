@@ -330,24 +330,27 @@ class Ui_MainWindow(object):
             self.verticalchart = True
             width = 0.5/len(rowitems)  # the width of the bars
             for i, row_item in enumerate(rowitems):
+                mode = None
                 if row_item.text() in self.MODE.keys():
-                    if self.MODE[row_item.text()] == "Sum":
+                    mode = self.MODE[row_item.text()]
+                    if mode == "Sum":
                         data = self.data.groupby(columnitem[0].text()).sum()[
                             row_item.text()]
-                    elif self.MODE[row_item.text()] == "Average":
+                    elif mode == "Average":
                         data = self.data.groupby(columnitem[0].text()).mean()[
                             row_item.text()]
-                    elif self.MODE[row_item.text()] == "Median":
+                    elif mode == "Median":
                         data = self.data.groupby(columnitem[0].text()).median()[
                             row_item.text()]
                 else:
+                    mode = "Sum"
                     data = self.data.groupby(columnitem[0].text()).sum()[
                         row_item.text()]
                 labels = list(data.index)
                 values = list(data.values)
                 x = np.arange(len(labels))  # the label locations
                 rects1 = self.chart_container.canvas.ax.bar(
-                    x + width*i, values, width, label=row_item.text())
+                    x + width*i, values, width, label=f"{row_item.text()} ({mode})")
                 self.chart_container.canvas.ax.set_ylabel(row_item.text())
                 self.chart_container.canvas.ax.set_xticks(x + width*i, labels)
                 self.chart_container.canvas.ax.bar_label(rects1, padding=3)
@@ -358,24 +361,27 @@ class Ui_MainWindow(object):
             self.verticalchart = False
             width = 0.5/len(columnitem)  # the width of the bars
             for i, column_item in enumerate(columnitem):
+                mode = None
                 if column_item.text() in self.MODE.keys():
-                    if self.MODE[column_item.text()] == "Sum":
+                    mode = self.MODE[column_item.text()]
+                    if mode == "Sum":
                         data = self.data.groupby(rowitems[0].text()).sum()[
                             column_item.text()]
-                    elif self.MODE[column_item.text()] == "Average":
+                    elif mode == "Average":
                         data = self.data.groupby(rowitems[0].text()).mean()[
                             column_item.text()]
-                    elif self.MODE[column_item.text()] == "Median":
+                    elif mode == "Median":
                         data = self.data.groupby(rowitems[0].text()).median()[
                             column_item.text()]
                 else:
+                    mode = "Sum"
                     data = self.data.groupby(rowitems[0].text()).sum()[
                         column_item.text()]
                 labels = list(data.index)
                 values = list(data.values)
                 x = np.arange(len(labels))  # the label locations
                 rects2 = self.chart_container.canvas.ax.barh(
-                    x + width*i, values, width, label=column_item.text())
+                    x + width*i, values, width, label=f"{column_item.text()} ({mode})")
                 self.chart_container.canvas.ax.set_xlabel(column_item.text())
                 self.chart_container.canvas.ax.set_yticks(x + width*i, labels)
                 self.chart_container.canvas.ax.bar_label(rects2, padding=3)

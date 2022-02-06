@@ -1,4 +1,4 @@
-from re import S
+import os
 import sys
 import numpy as np
 import pandas as pd
@@ -11,11 +11,17 @@ from DatapreviewWindow import Ui_DatapreviewWindow
 
 
 
+
 class Ui_MainWindow(object):
     def __init__(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1088, 762)
-        self.setupUi(MainWindow)
+        MainWindow.resize(1342, 762)
+
+        # picture path
+        self.line_icon_path = os.getcwd() + "/picture/line.png" 
+        self.bar_icon_path = os.getcwd() + "/picture/bar.png"
+        self.pie_icon_path = os.getcwd() + "/picture/pie.png"
+
 
         self.fileName = None
         self.data = None
@@ -23,6 +29,7 @@ class Ui_MainWindow(object):
         self.measurements = []
         self.MODE = {}
 
+        self.setupUi(MainWindow)
     def setupUi(self, MainWindow):
         self.centralwidget = QtWidgets.QWidget(MainWindow)
 
@@ -111,12 +118,12 @@ class Ui_MainWindow(object):
         self.Columnlabel.setObjectName("Columnlabel")
 
         self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
-        self.tabWidget.setGeometry(QtCore.QRect(360, 120, 711, 621))
+        self.tabWidget.setGeometry(QtCore.QRect(360, 120, 961, 621))
         self.tabWidget.setObjectName("tabWidget")
         self.tab = QtWidgets.QWidget()
         self.tab.setObjectName("tab")
         self.tableWidget = QtWidgets.QTableWidget(self.tab)
-        self.tableWidget.setGeometry(QtCore.QRect(20, 10, 671, 581))
+        self.tableWidget.setGeometry(QtCore.QRect(20, 10, 911, 581))
         self.tableWidget.setObjectName("tableWidget")
         self.tabWidget.addTab(self.tab, "")
         self.tab_2 = QtWidgets.QWidget()
@@ -128,9 +135,29 @@ class Ui_MainWindow(object):
         self.frame_3.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_3.setObjectName("frame_3")
 
+        self.chart_list = QtWidgets.QListWidget(self.tab_2)
+        self.chart_list.setGeometry(QtCore.QRect(740, 30, 181, 501))
+        self.chart_list.setObjectName("chart_list")
+
+        # set icon image
+
+        self.bar_icon = QtGui.QIcon(self.bar_icon_path)
+        self.pie_icon = QtGui.QIcon(self.pie_icon_path)
+        self.line_icon = QtGui.QIcon(self.line_icon_path)
+        self.bar_list = QtWidgets.QListWidgetItem("")
+        self.bar_list.setIcon(self.bar_icon)
+        self.pie_list = QtWidgets.QListWidgetItem("")
+        self.pie_list.setIcon(self.pie_icon)
+        self.line_list = QtWidgets.QListWidgetItem("")
+        self.line_list.setIcon(self.line_icon)
+        size = QtCore.QSize(150,180)
+        self.chart_list.setIconSize(size)
+        self.chart_list.addItem(self.bar_list)
+        self.chart_list.addItem(self.pie_list)
+        self.chart_list.addItem(self.line_list)
 
         self.chart_container = MplWidget(self.tab_2)
-        self.chart_container.setGeometry(QtCore.QRect(10, 60, 641, 421))
+        self.chart_container.setGeometry(QtCore.QRect(10, 60, 671, 431))
         self.chart_container.setObjectName("chart_container")
 
         self.verticalScrollBar = QtWidgets.QScrollBar(self.tab_2)

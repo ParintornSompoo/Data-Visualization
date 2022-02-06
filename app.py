@@ -51,7 +51,7 @@ class Ui_MainWindow(object):
         self.union_button = QtWidgets.QPushButton(self.frame)
         self.union_button.setGeometry(QtCore.QRect(170, 10, 151, 31))
         self.union_button.setObjectName("union_button")
-        # self.union_button.clicked.connect(lambda:print("hello world"))
+        self.union_button.clicked.connect(self.union_data)
 
         self.Dimensionlabel = QtWidgets.QLabel(self.frame)
         self.Dimensionlabel.setGeometry(QtCore.QRect(10, 50, 141, 31))
@@ -182,13 +182,24 @@ class Ui_MainWindow(object):
     def file_selected(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        fileName, _ = QFileDialog.getOpenFileName()
+        fileName, _ = QFileDialog.getOpenFileName()     # selected file
         self.fileName = fileName
         if self.fileName != None:
             self.read_file()
         
-    def union_data(self):
-        pass
+    def union_data(self):       # from  union button
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        file_name, _ = QFileDialog.getOpenFileName()    # selected file
+        if (file_name != None) and (file_name != ""):   
+            extension = file_name.split(".")[-1]        # file extension type
+            if extension == "csv":
+                data = pd.read_csv(file_name, encoding="ISO-8859-1")
+            elif extension == "xlsx":
+                data = pd.read_excel(file_name, engine='openpyxl')
+            else:
+                data = None
+            self.data = pd.concat([self.data, data])    # union data 
 
     def read_file(self):
         if self.fileName != "":
@@ -204,6 +215,8 @@ class Ui_MainWindow(object):
         self.set_listwidget()
 
     def setDimensionsMeasurements(self):
+        self.dimensions = []
+        self.measurements = []
         for i, col in enumerate(self.data.columns):
             if self.data[col].dtypes == "O":
                 self.dimensions.append(self.data.columns[i])
@@ -215,6 +228,8 @@ class Ui_MainWindow(object):
                 self.measurements.append(self.data.columns[i])
 
     def set_listwidget(self):
+        self.dimensionlist.clear()
+        self.measurementlist.clear()
         for dimensions in self.dimensions:
             i = Item(dimensions)
             self.dimensionlist.addItem(i)

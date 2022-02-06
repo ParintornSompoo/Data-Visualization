@@ -62,20 +62,23 @@ class Ui_DatapreviewWindow(object):
 
     def show_data(self, data):
         # set row,column count
-        self.tableWidget.setRowCount(100)
+        if len(data.index) > 100:
+            self.tableWidget.setRowCount(100)
+        else:
+            self.tableWidget.setRowCount(len(data.index))
         self.tableWidget.setColumnCount(len(data.columns))
         # set header
         for i, column in enumerate(data.columns):
             item = QtWidgets.QTableWidgetItem(column)
             self.tableWidget.setHorizontalHeaderItem(i, item)
-        for i, index in enumerate(data.index):
-            item = QtWidgets.QTableWidgetItem(index)
+        for i in range(len((data.index))):
+            item = QtWidgets.QTableWidgetItem(str(i+1))
             self.tableWidget.setVerticalHeaderItem(i, item)
         # set data
         for i in range(len(data.index)):
+            if i > 100:
+                break
             for j in range(len(data.columns)):
-                if i > 100:
-                    break
                 item = QtWidgets.QTableWidgetItem(str(data.iloc[i][j]))
                 self.tableWidget.setItem(i, j, item)
 

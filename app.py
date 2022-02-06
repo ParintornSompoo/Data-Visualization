@@ -37,11 +37,15 @@ class Ui_MainWindow(object):
         self.dimensionlist.setGeometry(QtCore.QRect(0, 90, 311, 241))
         self.dimensionlist.setObjectName("dimensionlist")
         self.dimensionlist.setDragEnabled(True)
+        self.dimensionlist.setAcceptDrops(True)
+        self.dimensionlist.setDefaultDropAction(QtCore.Qt.MoveAction)
 
         self.measurementlist = QtWidgets.QListWidget(self.frame)
         self.measurementlist.setGeometry(QtCore.QRect(0, 390, 311, 241))
         self.measurementlist.setObjectName("measurementlist")
         self.measurementlist.setDragEnabled(True)
+        self.measurementlist.setAcceptDrops(True)
+        self.measurementlist.setDefaultDropAction(QtCore.Qt.MoveAction)
 
         self.pushButton = QtWidgets.QPushButton(self.frame)
         self.pushButton.setGeometry(QtCore.QRect(10, 10, 151, 31))
@@ -231,11 +235,9 @@ class Ui_MainWindow(object):
         self.dimensionlist.clear()
         self.measurementlist.clear()
         for dimensions in self.dimensions:
-            i = Item(dimensions)
-            self.dimensionlist.addItem(i)
+            self.dimensionlist.addItem(dimensions)
         for measurements in self.measurements:
-            i = Item(measurements)
-            self.measurementlist.addItem(i)
+            self.measurementlist.addItem(measurements)
     
     def getcolumnlistindex(self):
         if self.columnlist.currentItem().text() in self.measurements:

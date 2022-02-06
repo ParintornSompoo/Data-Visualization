@@ -44,9 +44,14 @@ class Ui_MainWindow(object):
         self.measurementlist.setDragEnabled(True)
 
         self.pushButton = QtWidgets.QPushButton(self.frame)
-        self.pushButton.setGeometry(QtCore.QRect(20, 10, 221, 31))
+        self.pushButton.setGeometry(QtCore.QRect(10, 10, 151, 31))
         self.pushButton.setObjectName("pushButton")
         self.pushButton.clicked.connect(self.file_selected)
+
+        self.union_button = QtWidgets.QPushButton(self.frame)
+        self.union_button.setGeometry(QtCore.QRect(170, 10, 151, 31))
+        self.union_button.setObjectName("union_button")
+        # self.union_button.clicked.connect(lambda:print("hello world"))
 
         self.Dimensionlabel = QtWidgets.QLabel(self.frame)
         self.Dimensionlabel.setGeometry(QtCore.QRect(10, 50, 141, 31))
@@ -166,6 +171,8 @@ class Ui_MainWindow(object):
         self.measurementlabel.setText(_translate("MainWindow", "Measurement"))
         self.viewdata_button.setText(_translate("MainWindow", "View Data"))
         self.Rowlabel.setText(_translate("MainWindow", "Row"))
+        self.union_button.setText(_translate("MainWindow", "View Data"))
+        self.union_button.setText(_translate("MainWindow", "Union data"))
         self.Columnlabel.setText(_translate("MainWindow", "Column"))
         self.statisticbtn.setText(_translate("MainWindow", "Statistic"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Grid Table"))
@@ -179,6 +186,9 @@ class Ui_MainWindow(object):
         self.fileName = fileName
         if self.fileName != None:
             self.read_file()
+        
+    def union_data(self):
+        pass
 
     def read_file(self):
         if self.fileName != "":

@@ -2,12 +2,13 @@ import os
 import sys
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore, QtGui, QtWidgets , QtWebEngineWidgets
 from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication, QListView
 from selectionwindow import Ui_SecondWindow
 from DatapreviewWindow import Ui_DatapreviewWindow
+from io import StringIO
+import altair as alt
+from vega_datasets import data
 
 
 
@@ -156,9 +157,25 @@ class Ui_MainWindow(object):
         self.chart_list.addItem(self.pie_list)
         self.chart_list.addItem(self.line_list)
 
-        self.chart_container = MplWidget(self.tab_2)
+        self.chart_container = QtWidgets.QWidget(self.tab_2)
         self.chart_container.setGeometry(QtCore.QRect(10, 60, 671, 431))
         self.chart_container.setObjectName("chart_container")
+
+        self.chart = WebEngineView()
+        self.vbl = QtWidgets.QVBoxLayout()         # Set box for plotting
+        self.vbl.addWidget(self.chart)
+        self.chart_container.setLayout(self.vbl)
+
+        cars = data.cars()
+
+        chart = (
+            alt.Chart(cars)
+            .mark_bar()
+            .encode(x=alt.X("Miles_per_Gallon", bin=True), y="count()",)
+            .properties(title="A bar chart")
+            .configure_title(anchor="start")
+        )
+        self.chart.updateChart(chart)
 
         self.verticalScrollBar = QtWidgets.QScrollBar(self.tab_2)
         self.verticalScrollBar.setGeometry(QtCore.QRect(10, 70, 20, 441))
@@ -373,26 +390,6 @@ class Ui_MainWindow(object):
                     item = QtWidgets.QTableWidgetItem(str(data.iloc[i][j]))
                     self.tableWidget.setItem(i, j, item)
 
-    def setupSlider(self):          # setting up slider
-        self.limx = np.array(self.chart_container.canvas.ax.get_xlim())
-        self.limy = np.array(self.chart_container.canvas.ax.get_ylim())
-        self.horizontalScrollBar.actionTriggered.connect(self.update)
-        self.verticalScrollBar.actionTriggered.connect(self.update)
-        self.update()
-
-    def update(self, evt=None):     # update slider
-        if self.verticalchart:
-            r = self.horizontalScrollBar.value() / ((1 + self.step) * 100)
-            l1 = self.limx[0] + r * np.diff(self.limx)
-            l2 = l1 + np.diff(self.limx) * self.step
-            self.chart_container.canvas.ax.set_xlim(l1, l2)
-        else:
-            v = self.verticalScrollBar.value() / ((1 + self.step) * 100)
-            l3 = self.limy[0] + v * np.diff(self.limy)
-            l4 = l3 + np.diff(self.limy) * self.step
-            self.chart_container.canvas.ax.set_ylim(l4, l3)
-        self.chart_container.canvas.draw_idle()
-
     def on_combobox_changed(self):
         mode = self.ui.comboBox.currentText()       # current selected mode
         if self.columnselected:
@@ -403,7 +400,6 @@ class Ui_MainWindow(object):
             self.MODE[self.rowlist.item(self.index).text()] = mode
    
     def create_statistic(self):
-        self.chart_container.canvas.ax.cla()        # clear previous plot
         # get row columns
         columnitem = []
         for index in range(self.columnlist.count()):
@@ -412,77 +408,6 @@ class Ui_MainWindow(object):
         for index in range(self.rowlist.count()):
             rowitems.append(self.rowlist.item(index))
 
-        if columnitem[0].text() in self.dimensions:
-            self.verticalchart = True
-            width = 0.5/len(rowitems)  # the width of the bars
-            for i, row_item in enumerate(rowitems):
-                mode = None
-                if row_item.text() in self.MODE.keys():
-                    mode = self.MODE[row_item.text()]
-                    if mode == "sum":
-                        data = self.data.groupby(columnitem[0].text()).sum()[
-                            row_item.text()]
-                    elif mode == "mean":
-                        data = self.data.groupby(columnitem[0].text()).mean()[
-                            row_item.text()]
-                    elif mode == "median":
-                        data = self.data.groupby(columnitem[0].text()).median()[
-                            row_item.text()]
-                else:
-                    mode = "sum"
-                    data = self.data.groupby(columnitem[0].text()).sum()[
-                        row_item.text()]
-                labels = list(data.index)
-                values = list(data.values)
-                x = np.arange(len(labels))  # the label locations
-                rects1 = self.chart_container.canvas.ax.bar(
-                    x + width*i, values, width, label=f"{row_item.text()} ({mode})")
-                self.chart_container.canvas.ax.set_ylabel(row_item.text())
-                self.chart_container.canvas.ax.set_xticks(x + width*i, labels)
-                self.chart_container.canvas.ax.bar_label(rects1, padding=3)
-                self.verticalScrollBar.hide()
-                self.horizontalScrollBar.show()
-
-        elif rowitems[0].text() in self.dimensions:
-            self.verticalchart = False
-            width = 0.5/len(columnitem)  # the width of the bars
-            for i, column_item in enumerate(columnitem):
-                mode = None
-                if column_item.text() in self.MODE.keys():
-                    mode = self.MODE[column_item.text()]
-                    if mode == "sum":
-                        data = self.data.groupby(rowitems[0].text()).sum()[
-                            column_item.text()]
-                    elif mode == "mean":
-                        data = self.data.groupby(rowitems[0].text()).mean()[
-                            column_item.text()]
-                    elif mode == "median":
-                        data = self.data.groupby(rowitems[0].text()).median()[
-                            column_item.text()]
-                else:
-                    mode = "sum"
-                    data = self.data.groupby(rowitems[0].text()).sum()[
-                        column_item.text()]
-                labels = list(data.index)
-                values = list(data.values)
-                x = np.arange(len(labels))  # the label locations
-                rects2 = self.chart_container.canvas.ax.barh(
-                    x + width*i, values, width, label=f"{column_item.text()} ({mode})")
-                self.chart_container.canvas.ax.set_xlabel(column_item.text())
-                self.chart_container.canvas.ax.set_yticks(x + width*i, labels)
-                self.chart_container.canvas.ax.bar_label(rects2, padding=3)
-                self.horizontalScrollBar.hide()
-                self.verticalScrollBar.show()
-
-        else:
-            print("No row & column selected")
-            return
-
-        self.chart_container.canvas.ax.legend()
-
-        self.chart_container.canvas.draw()
-        self.step = 3/len(labels)
-        self.setupSlider()
 
 class Item(QtWidgets.QListWidgetItem):
     def __init__(self, *args, **kwargs):
@@ -490,19 +415,38 @@ class Item(QtWidgets.QListWidgetItem):
         QtWidgets.QListWidgetItem.__init__(self, *args, **kwargs)
 
 
-class MplCanvas(FigureCanvas):
-    def __init__(self):
-        self.fig, self.ax = plt.subplots(figsize=(5, 4), dpi=100)
-        super().__init__(self.fig)
-
-
-class MplWidget(QtWidgets.QWidget):
+class WebEngineView(QtWebEngineWidgets.QWebEngineView):
     def __init__(self, parent=None):
-        QtWidgets.QWidget.__init__(self, parent)   # Inherit from QWidget
-        self.canvas = MplCanvas()                  # Create canvas object
-        self.vbl = QtWidgets.QVBoxLayout()         # Set box for plotting
-        self.vbl.addWidget(self.canvas)
-        self.setLayout(self.vbl)
+        super().__init__(parent)
+        self.page().profile().downloadRequested.connect(self.onDownloadRequested)
+        self.windows = []
+
+    @QtCore.pyqtSlot(QtWebEngineWidgets.QWebEngineDownloadItem)
+    def onDownloadRequested(self, download):
+        if (
+            download.state()
+            == QtWebEngineWidgets.QWebEngineDownloadItem.DownloadRequested
+        ):
+            path, _ = QtWidgets.QFileDialog.getSaveFileName(
+                self, self.tr("Save as"), download.path()
+            )
+            if path:
+                download.setPath(path)
+                download.accept()
+
+    def createWindow(self, type_):
+        if type_ == QtWebEngineWidgets.QWebEnginePage.WebBrowserTab:
+            window = QtWidgets.QMainWindow(self)
+            view = QtWebEngineWidgets.QWebEngineView(window)
+            window.resize(640, 480)
+            window.setCentralWidget(view)
+            window.show()
+            return view
+
+    def updateChart(self, chart, **kwargs):
+        output = StringIO()
+        chart.save(output, "html", **kwargs)
+        self.setHtml(output.getvalue())
 
 
 if __name__ == "__main__":

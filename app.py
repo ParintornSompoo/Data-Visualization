@@ -402,25 +402,33 @@ class Ui_MainWindow(object):
             rowitems.append(self.rowlist.item(index).text())
 
         LIST = columnitem + rowitems
-        print(LIST)
         data = self.data[LIST]
-        if columnitem[0] in self.dimensions:
-            chart = (
-                alt.Chart(data)
-                .mark_bar()
-                .encode(x=alt.X(columnitem[0]), y=f"median({rowitems[0]})")
-                .properties(title="A bar chart")
-                .configure_title(anchor="start")
-            ).interactive()
-        else:
-            chart = (
-                alt.Chart(data)
-                .mark_bar()
-                .encode(x=alt.X(f"median({columnitem[0]})"), y=f"{rowitems[0]}")
-                .properties(title="A bar chart")
-                .configure_title(anchor="start")
-            ).interactive()
-        self.chart.updateChart(chart)
+        if len(columnitem) == 1 and len(rowitems) == 1:
+            if columnitem[0] in self.dimensions:
+                mode = self.MODE[rowitems[0]]
+                chart = (
+                    alt.Chart(data)
+                    .mark_bar()
+                    .encode(
+                        x=alt.X(columnitem[0]), 
+                        y=f"{mode}({rowitems[0]})",
+                    )
+                    .properties(title="A bar chart")
+                    .configure_title(anchor="start")
+                ).interactive()
+            else:
+                mode = self.MODE[columnitem[0]]
+                chart = (
+                    alt.Chart(data)
+                    .mark_bar()
+                    .encode(
+                        x=alt.X(f"{mode}({columnitem[0]})"), 
+                        y=rowitems[0],
+                    )
+                    .properties(title="A bar chart")
+                    .configure_title(anchor="start")
+                ).interactive()
+            self.chart.updateChart(chart)
 
 
 class Item(QtWidgets.QListWidgetItem):

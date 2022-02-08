@@ -1,6 +1,5 @@
 import os
 import sys
-import numpy as np
 import pandas as pd
 from PyQt5 import QtCore, QtGui, QtWidgets , QtWebEngineWidgets
 from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication, QListView
@@ -165,17 +164,6 @@ class Ui_MainWindow(object):
         self.vbl = QtWidgets.QVBoxLayout()         # Set box for plotting
         self.vbl.addWidget(self.chart)
         self.chart_container.setLayout(self.vbl)
-
-        cars = data.cars()
-
-        chart = (
-            alt.Chart(cars)
-            .mark_bar()
-            .encode(x=alt.X("Miles_per_Gallon", bin=True), y="count()",)
-            .properties(title="A bar chart")
-            .configure_title(anchor="start")
-        )
-        self.chart.updateChart(chart)
 
         self.verticalScrollBar = QtWidgets.QScrollBar(self.tab_2)
         self.verticalScrollBar.setGeometry(QtCore.QRect(10, 70, 20, 441))
@@ -366,6 +354,10 @@ class Ui_MainWindow(object):
                 dimensions.append(item)
             else:
                 measurements.append(item)
+        # remove duplicates
+        dimensions = list(dict.fromkeys(dimensions))
+        measurements = list(dict.fromkeys(measurements))
+        # defind aggregrate
         agg = {}
         for measurement in measurements:
             agg = self.MODE
@@ -398,15 +390,37 @@ class Ui_MainWindow(object):
         else:
             self.rowlist.item(self.index).mode = mode
             self.MODE[self.rowlist.item(self.index).text()] = mode
+        self.set_grid_table()
    
     def create_statistic(self):
         # get row columns
         columnitem = []
         for index in range(self.columnlist.count()):
-            columnitem.append(self.columnlist.item(index))
+            columnitem.append(self.columnlist.item(index).text())
         rowitems = []
         for index in range(self.rowlist.count()):
-            rowitems.append(self.rowlist.item(index))
+            rowitems.append(self.rowlist.item(index).text())
+
+        LIST = columnitem + rowitems
+        print(LIST)
+        data = self.data[LIST]
+        if columnitem[0] in self.dimensions:
+            chart = (
+                alt.Chart(data)
+                .mark_bar()
+                .encode(x=alt.X(columnitem[0]), y=f"median({rowitems[0]})")
+                .properties(title="A bar chart")
+                .configure_title(anchor="start")
+            ).interactive()
+        else:
+            chart = (
+                alt.Chart(data)
+                .mark_bar()
+                .encode(x=alt.X(f"median({columnitem[0]})"), y=f"{rowitems[0]}")
+                .properties(title="A bar chart")
+                .configure_title(anchor="start")
+            ).interactive()
+        self.chart.updateChart(chart)
 
 
 class Item(QtWidgets.QListWidgetItem):

@@ -1,6 +1,5 @@
 import os
 import sys
-from numpy import char
 import pandas as pd
 from PyQt5 import QtCore, QtGui, QtWidgets , QtWebEngineWidgets
 from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication, QListView
@@ -8,9 +7,6 @@ from selectionwindow import Ui_SecondWindow
 from DatapreviewWindow import Ui_DatapreviewWindow
 from io import StringIO
 import altair as alt
-from vega_datasets import data
-
-
 
 
 class Ui_MainWindow(object):

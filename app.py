@@ -444,6 +444,7 @@ class Ui_MainWindow(object):
             .properties(title="A bar chart")
             .configure_title(anchor="start")
             .interactive()
+            .resolve_scale(x="independent")
         )
         self.chart.updateChart(chart)   # plot chart
 

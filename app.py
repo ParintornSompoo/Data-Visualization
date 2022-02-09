@@ -1,5 +1,6 @@
 import os
 import sys
+from numpy import char
 import pandas as pd
 from PyQt5 import QtCore, QtGui, QtWidgets , QtWebEngineWidgets
 from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication, QListView
@@ -96,6 +97,8 @@ class Ui_MainWindow(object):
         self.rowlist.setDefaultDropAction(QtCore.Qt.MoveAction)
         self.rowlist.doubleClicked.connect(self.getrowlistindex)
         self.rowlist.itemChanged.connect(self.set_grid_table)
+        self.rowlist.itemEntered.connect(self.set_grid_table)
+        self.rowlist.itemActivated.connect(self.set_grid_table)
 
         self.columnlist = QtWidgets.QListWidget(self.frame_2)
         self.columnlist.setGeometry(QtCore.QRect(100, 20, 591, 31))
@@ -354,18 +357,24 @@ class Ui_MainWindow(object):
                 dimensions.append(item)
             else:
                 measurements.append(item)
+
         # remove duplicates
         dimensions = list(dict.fromkeys(dimensions))
         measurements = list(dict.fromkeys(measurements))
+
         # defind aggregrate
         agg = {}
         for measurement in measurements:
             agg = self.MODE
             if measurement not in self.MODE.keys():
                 agg[measurement] = "sum"
+
+        # clear previous table
+        self.tableWidget.setRowCount(0) 
+        self.tableWidget.setColumnCount(0)
+        # insert data
         if len(dimensions) > 0 and len(measurements) > 0:
             data = self.data.groupby(dimensions, as_index=False).agg(agg)
-            print(data)
             # set row,column count
             self.tableWidget.setRowCount(len(data.index.tolist()))
             self.tableWidget.setColumnCount(len(data.columns.tolist()))
@@ -396,39 +405,47 @@ class Ui_MainWindow(object):
         # get row columns
         columnitem = []
         for index in range(self.columnlist.count()):
-            columnitem.append(self.columnlist.item(index).text())
+            item = self.columnlist.item(index).text()
+            columnitem.append(item)
         rowitems = []
         for index in range(self.rowlist.count()):
-            rowitems.append(self.rowlist.item(index).text())
+            item = self.rowlist.item(index).text()
+            rowitems.append(item)
 
-        LIST = columnitem + rowitems
-        data = self.data[LIST]
-        if len(columnitem) == 1 and len(rowitems) == 1:
-            if columnitem[0] in self.dimensions:
-                mode = self.MODE[rowitems[0]]
-                chart = (
-                    alt.Chart(data)
-                    .mark_bar()
-                    .encode(
-                        x=alt.X(columnitem[0]), 
-                        y=f"{mode}({rowitems[0]})",
-                    )
-                    .properties(title="A bar chart")
-                    .configure_title(anchor="start")
-                ).interactive()
+        data = self.data[columnitem+rowitems]
+
+        alt_column = [alt.X, alt.Column, alt.Color]
+        alt_row = [alt.Y, alt.Row, alt.Color]
+        alt_plot = []
+        tooltip = []
+        for i, col in enumerate(columnitem):
+            if col in self.measurements:
+                mode = self.MODE[col]
+                plot = alt_column[i](f"{mode}({col})")
+                tooltip.append(f"{mode}({col})")
             else:
-                mode = self.MODE[columnitem[0]]
-                chart = (
-                    alt.Chart(data)
-                    .mark_bar()
-                    .encode(
-                        x=alt.X(f"{mode}({columnitem[0]})"), 
-                        y=rowitems[0],
-                    )
-                    .properties(title="A bar chart")
-                    .configure_title(anchor="start")
-                ).interactive()
-            self.chart.updateChart(chart)
+                plot = alt_column[i](f"{col}")
+                tooltip.append(f"{col}")
+            alt_plot.append(plot)
+        for i, row in enumerate(rowitems):
+            if row in self.measurements:
+                mode = self.MODE[row]
+                plot = alt_row[i](f"{mode}({row})")
+                tooltip.append(f"{mode}({row})")
+            else:
+                plot = alt_row[i](f"{row}")
+                tooltip.append(f"{row}")
+            alt_plot.append(plot)
+
+        alt_plot.append(alt.Tooltip(tooltip))
+        chart = (alt.Chart(data).mark_bar().encode(
+            *alt_plot
+            )
+            .properties(title="A bar chart")
+            .configure_title(anchor="start")
+            .interactive()
+        )
+        self.chart.updateChart(chart)   # plot chart
 
 
 class Item(QtWidgets.QListWidgetItem):

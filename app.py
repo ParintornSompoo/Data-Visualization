@@ -5,6 +5,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets , QtWebEngineWidgets
 from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication, QListView
 from selectionwindow import Ui_SecondWindow
 from DatapreviewWindow import Ui_DatapreviewWindow
+from FilterdimensionWindow import Ui_FilterdimensionWindow
 from io import StringIO
 import altair as alt
 
@@ -25,6 +26,7 @@ class Ui_MainWindow(object):
         self.dimensions = []
         self.measurements = []
         self.MODE = {}
+        self.filter = {}
 
         self.setupUi(MainWindow)
     def setupUi(self, MainWindow):
@@ -198,6 +200,11 @@ class Ui_MainWindow(object):
         self.ui2.setupUi(self.window2)
         self.ui2.pushButton_2.clicked.connect(self.reset_dimension_measure)
 
+        self.window3 = QtWidgets.QMainWindow()
+        self.ui3 = Ui_FilterdimensionWindow()
+        self.ui3.setupUi(self.window3)
+        self.ui3.pushButton.clicked.connect(self.window3.hide)
+
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
@@ -279,6 +286,10 @@ class Ui_MainWindow(object):
                 self.columnlist.insertItem(self.index,i)
             self.columnselected = True
             self.secondwindow(self.index)
+        elif self.columnlist.currentItem().text() in self.dimensions:
+            self.columnselected = True
+            index = self.columnlist.currentIndex().row()
+            self.filter_dimension_Window(index)
 
     def getrowlistindex(self):
         if self.rowlist.currentItem().text() in self.measurements:
@@ -289,6 +300,23 @@ class Ui_MainWindow(object):
                 self.rowlist.insertItem(self.index,i)
             self.columnselected = False
             self.secondwindow(self.index)
+        elif self.rowlist.currentItem().text() in self.dimensions:
+            self.columnselected = False
+            index = self.rowlist.currentIndex().row()
+            self.filter_dimension_Window(index)
+    
+    def filter_dimension_Window(self,index):
+        self.ui3.listWidget.clear()
+        if self.columnselected:
+            keys = self.data.groupby(self.columnlist.item(index).text()).groups.keys()
+        else:
+            keys = self.data.groupby(self.rowlist.item(index).text()).groups.keys()
+        for key in keys:
+            item = QtWidgets.QListWidgetItem(str(key))
+            item.setCheckState(QtCore.Qt.Checked)
+            self.ui3.listWidget.addItem(item)
+        self.window3.show()
+
 
     def secondwindow(self, index):
         _translate = QtCore.QCoreApplication.translate
@@ -307,6 +335,7 @@ class Ui_MainWindow(object):
             else:
                 self.ui.comboBox.setCurrentText(self.rowlist.item(index).mode)
         self.window.show()
+    
 
     def datapreviewwindow(self):
         # clear dimensions, measurements Qlistwidget

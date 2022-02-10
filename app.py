@@ -452,49 +452,55 @@ class Ui_MainWindow(object):
    
     def create_statistic(self):
         # get row columns
+        dimensions = []
+        measurements = []
         columnitem = []
         for index in range(self.columnlist.count()):
             item = self.columnlist.item(index).text()
+            if item in self.dimensions:
+                dimensions.append(item)
+            else:
+                measurements.append(item)
             columnitem.append(item)
         rowitems = []
         for index in range(self.rowlist.count()):
             item = self.rowlist.item(index).text()
+            if item in self.dimensions:
+                dimensions.append(item)
+            else:
+                measurements.append(item)
             rowitems.append(item)
-
-        data = self.data[columnitem+rowitems]
 
         alt_column = [alt.X, alt.Column, alt.Color]
         alt_row = [alt.Y, alt.Row, alt.Color]
         alt_plot = []
         tooltip = []
-        for i, col in enumerate(columnitem):
-            if col in self.measurements:
-                mode = self.MODE[col]
-                plot = alt_column[i](f"{mode}({col})")
-                tooltip.append(f"{mode}({col})")
+        PLOT = []
+        for dimension in dimensions:
+            if dimension in columnitem:
+                alt_plot.append(alt_column[0](dimension))
+                alt_column.pop(0)
             else:
-                plot = alt_column[i](f"{col}")
-                tooltip.append(f"{col}")
-            alt_plot.append(plot)
-        for i, row in enumerate(rowitems):
-            if row in self.measurements:
-                mode = self.MODE[row]
-                plot = alt_row[i](f"{mode}({row})")
-                tooltip.append(f"{mode}({row})")
+                alt_plot.append(alt_row[0](dimension))
+                alt_row.pop(0)
+            tooltip.append(dimension)
+        for measurement in measurements:
+            plt = alt_plot.copy()
+            if measurement in columnitem:
+                plt.append(alt_column[0](f"{self.MODE[measurement]}({measurement})"))
             else:
-                plot = alt_row[i](f"{row}")
-                tooltip.append(f"{row}")
-            alt_plot.append(plot)
-
-        alt_plot.append(alt.Tooltip(tooltip))
-        chart = (alt.Chart(data).mark_bar().encode(
-            *alt_plot
+                plt.append(alt_row[0](f"{self.MODE[measurement]}({measurement})"))
+            plt.append(alt.Tooltip(tooltip+[f"{self.MODE[measurement]}({measurement})"]))
+            DIMENSION = dimensions + [measurement]
+            chart = (alt.Chart(self.data[DIMENSION]).mark_bar().encode(
+                *plt
+                )
+                .properties(height=60)
+                .interactive()
+                .resolve_scale(x="independent")
             )
-            .properties(title="A bar chart")
-            .configure_title(anchor="start")
-            .interactive()
-            .resolve_scale(x="independent")
-        )
+            PLOT.append(chart)
+        chart = alt.vconcat(*PLOT)
         self.chart.updateChart(chart)   # plot chart
 
 

@@ -203,7 +203,7 @@ class Ui_MainWindow(object):
         self.window3 = QtWidgets.QMainWindow()
         self.ui3 = Ui_FilterdimensionWindow()
         self.ui3.setupUi(self.window3)
-        self.ui3.pushButton.clicked.connect(self.window3.hide)
+        self.ui3.pushButton.clicked.connect(self.set_filter)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -288,8 +288,8 @@ class Ui_MainWindow(object):
             self.secondwindow(self.index)
         elif self.columnlist.currentItem().text() in self.dimensions:
             self.columnselected = True
-            index = self.columnlist.currentIndex().row()
-            self.filter_dimension_Window(index)
+            self.index = self.columnlist.currentIndex().row()
+            self.filter_dimension_Window(self.index)
 
     def getrowlistindex(self):
         if self.rowlist.currentItem().text() in self.measurements:
@@ -302,20 +302,44 @@ class Ui_MainWindow(object):
             self.secondwindow(self.index)
         elif self.rowlist.currentItem().text() in self.dimensions:
             self.columnselected = False
-            index = self.rowlist.currentIndex().row()
-            self.filter_dimension_Window(index)
+            self.index = self.rowlist.currentIndex().row()
+            self.filter_dimension_Window(self.index)
     
     def filter_dimension_Window(self,index):
         self.ui3.listWidget.clear()
+        dimensions = self.columnlist.item(index).text()
         if self.columnselected:
-            keys = self.data.groupby(self.columnlist.item(index).text()).groups.keys()
+            dimensions = self.columnlist.item(index).text()
+            keys = self.data.groupby(dimensions).groups.keys()
         else:
-            keys = self.data.groupby(self.rowlist.item(index).text()).groups.keys()
-        for key in keys:
-            item = QtWidgets.QListWidgetItem(str(key))
-            item.setCheckState(QtCore.Qt.Checked)
-            self.ui3.listWidget.addItem(item)
+            dimensions = self.rowlist.item(index).text()
+            keys = self.data.groupby(dimensions).groups.keys()
+        if dimensions in self.filter.keys():
+            for i, key in enumerate(keys):
+                item = QtWidgets.QListWidgetItem(str(key))
+                if self.filter[dimensions][i]:
+                    item.setCheckState(QtCore.Qt.Checked)
+                else:
+                    item.setCheckState(QtCore.Qt.Unchecked)
+                self.ui3.listWidget.addItem(item)
+        else:
+            for key in keys:
+                item = QtWidgets.QListWidgetItem(str(key))
+                item.setCheckState(QtCore.Qt.Checked)
+                self.ui3.listWidget.addItem(item)
         self.window3.show()
+    
+    def set_filter(self):
+        filter = []
+        for i in range(self.ui3.listWidget.count()):
+            item = self.ui3.listWidget.item(i)
+            if item.checkState() == 2:
+                filter.append(True)
+            else:
+                filter.append(False)
+        self.filter[self.columnlist.item(self.index).text()] = filter
+        self.window3.hide()
+        print(self.filter)
 
 
     def secondwindow(self, index):

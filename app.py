@@ -27,6 +27,7 @@ class Ui_MainWindow(object):
         self.measurements = []
         self.MODE = {}
         self.filter = {}
+        self.agg = {}
 
         self.setupUi(MainWindow)
     def setupUi(self, MainWindow):
@@ -400,18 +401,18 @@ class Ui_MainWindow(object):
         measurements = list(dict.fromkeys(measurements))
 
         # defind aggregrate
-        agg = {}
+        self.agg = {}
         for measurement in measurements:
-            agg = self.MODE
+            self.agg = self.MODE
             if measurement not in self.MODE.keys():
-                agg[measurement] = "sum"
+                self.agg[measurement] = "sum"
 
         # clear previous table
         self.tableWidget.setRowCount(0) 
         self.tableWidget.setColumnCount(0)
         # insert data
         if len(dimensions) > 0 and len(measurements) > 0:
-            data = self.data.groupby(dimensions, as_index=False).agg(agg)
+            data = self.data.groupby(dimensions, as_index=False).agg(self.agg)
             # set row,column count
             self.tableWidget.setRowCount(len(data.index.tolist()))
             self.tableWidget.setColumnCount(len(data.columns.tolist()))
@@ -475,20 +476,23 @@ class Ui_MainWindow(object):
         for measurement in measurements:
             plt = alt_plot.copy()
             if measurement in columnitem:
-                plt.append(alt_column[0](f"{self.MODE[measurement]}({measurement})"))
+                plt.append(alt_column[0](measurement))
             else:
-                plt.append(alt_row[0](f"{self.MODE[measurement]}({measurement})"))
-            plt.append(alt.Tooltip(tooltip+[f"{self.MODE[measurement]}({measurement})"]))
-            DIMENSION = dimensions + [measurement]
-            chart = (alt.Chart(self.data[DIMENSION]).mark_bar().encode(
+                plt.append(alt_row[0](measurement))
+            plt.append(alt.Tooltip(tooltip+[measurement]))
+            data = self.data.groupby(dimensions,as_index=False).agg(self.agg)
+            chart = (alt.Chart(data).mark_bar().encode(
                 *plt
                 )
-                .properties(height=60)
-                .interactive()
                 .resolve_scale(x="independent")
+                .interactive()
+                .properties(title=f"{self.MODE[measurement]} of {measurement}")
             )
             PLOT.append(chart)
-        chart = alt.vconcat(*PLOT)
+        if measurements[0] in columnitem:
+            chart = alt.hconcat(*PLOT)
+        else:
+            chart = alt.vconcat(*PLOT)
         self.chart.updateChart(chart)   # plot chart
 
 

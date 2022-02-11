@@ -13,7 +13,7 @@ import altair as alt
 class Ui_MainWindow(object):
     def __init__(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1342, 762)
+        MainWindow.resize(1905, 1047)
 
         # picture path
         self.line_icon_path = os.getcwd() + "/picture/line.png" 
@@ -34,20 +34,20 @@ class Ui_MainWindow(object):
 
         self.centralwidget.setObjectName("centralwidget")
         self.frame = QtWidgets.QFrame(self.centralwidget)
-        self.frame.setGeometry(QtCore.QRect(0, 0, 351, 671))
+        self.frame.setGeometry(QtCore.QRect(0, 0, 351, 871))
         self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame.setObjectName("frame")
 
         self.dimensionlist = QtWidgets.QListWidget(self.frame)
-        self.dimensionlist.setGeometry(QtCore.QRect(0, 90, 311, 241))
+        self.dimensionlist.setGeometry(QtCore.QRect(0, 110, 311, 281))
         self.dimensionlist.setObjectName("dimensionlist")
         self.dimensionlist.setDragEnabled(True)
         self.dimensionlist.setAcceptDrops(True)
         self.dimensionlist.setDefaultDropAction(QtCore.Qt.MoveAction)
 
         self.measurementlist = QtWidgets.QListWidget(self.frame)
-        self.measurementlist.setGeometry(QtCore.QRect(0, 390, 311, 241))
+        self.measurementlist.setGeometry(QtCore.QRect(0, 510, 311, 291))
         self.measurementlist.setObjectName("measurementlist")
         self.measurementlist.setDragEnabled(True)
         self.measurementlist.setAcceptDrops(True)
@@ -71,12 +71,12 @@ class Ui_MainWindow(object):
         self.Dimensionlabel.setFont(font)
         self.Dimensionlabel.setObjectName("Dimensionlabel")
         self.measurementlabel = QtWidgets.QLabel(self.frame)
-        self.measurementlabel.setGeometry(QtCore.QRect(10, 350, 181, 31))
+        self.measurementlabel.setGeometry(QtCore.QRect(10, 430, 181, 31))
         self.measurementlabel.setFont(font)
         self.measurementlabel.setObjectName("measurementlabel")
 
         self.viewdata_button = QtWidgets.QPushButton(self.frame)
-        self.viewdata_button.setGeometry(QtCore.QRect(10, 640, 231, 28))
+        self.viewdata_button.setGeometry(QtCore.QRect(10, 820, 231, 28))
         self.viewdata_button.setObjectName("pushButton_2")
         self.viewdata_button.clicked.connect(self.datapreviewwindow)
 
@@ -119,25 +119,25 @@ class Ui_MainWindow(object):
         self.Columnlabel.setObjectName("Columnlabel")
 
         self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
-        self.tabWidget.setGeometry(QtCore.QRect(360, 120, 961, 621))
+        self.tabWidget.setGeometry(QtCore.QRect(360, 120, 1491, 741))
         self.tabWidget.setObjectName("tabWidget")
         self.tab = QtWidgets.QWidget()
         self.tab.setObjectName("tab")
         self.tableWidget = QtWidgets.QTableWidget(self.tab)
-        self.tableWidget.setGeometry(QtCore.QRect(20, 10, 911, 581))
+        self.tableWidget.setGeometry(QtCore.QRect(20, 10, 1461, 681))
         self.tableWidget.setObjectName("tableWidget")
         self.tabWidget.addTab(self.tab, "")
         self.tab_2 = QtWidgets.QWidget()
         self.tab_2.setObjectName("tab_2")
 
         self.frame_3 = QtWidgets.QFrame(self.tab_2)
-        self.frame_3.setGeometry(QtCore.QRect(380, 130, 661, 511))
+        self.frame_3.setGeometry(QtCore.QRect(40, 10, 661, 511))
         self.frame_3.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_3.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_3.setObjectName("frame_3")
 
         self.chart_list = QtWidgets.QListWidget(self.tab_2)
-        self.chart_list.setGeometry(QtCore.QRect(740, 30, 181, 501))
+        self.chart_list.setGeometry(QtCore.QRect(1280, 110, 181, 501))
         self.chart_list.setObjectName("chart_list")
 
         # set icon image
@@ -158,25 +158,13 @@ class Ui_MainWindow(object):
         self.chart_list.addItem(self.line_list)
 
         self.chart_container = QtWidgets.QWidget(self.tab_2)
-        self.chart_container.setGeometry(QtCore.QRect(10, 60, 671, 431))
+        self.chart_container.setGeometry(QtCore.QRect(10, 60, 1231, 631))
         self.chart_container.setObjectName("chart_container")
 
         self.chart = WebEngineView()
         self.vbl = QtWidgets.QVBoxLayout()         # Set box for plotting
         self.vbl.addWidget(self.chart)
         self.chart_container.setLayout(self.vbl)
-
-        self.verticalScrollBar = QtWidgets.QScrollBar(self.tab_2)
-        self.verticalScrollBar.setGeometry(QtCore.QRect(10, 70, 20, 441))
-        self.verticalScrollBar.setOrientation(QtCore.Qt.Vertical)
-        self.verticalScrollBar.setObjectName("verticalScrollBar")
-        self.verticalScrollBar.hide()
-
-        self.horizontalScrollBar = QtWidgets.QScrollBar(self.tab_2)
-        self.horizontalScrollBar.setGeometry(QtCore.QRect(30, 530, 671, 20))
-        self.horizontalScrollBar.setOrientation(QtCore.Qt.Horizontal)
-        self.horizontalScrollBar.setObjectName("horizontalScrollBar")
-        self.horizontalScrollBar.hide()
 
         self.statisticbtn = QtWidgets.QPushButton(self.tab_2)
         self.statisticbtn.setGeometry(QtCore.QRect(20, 10, 141, 41))
@@ -452,49 +440,55 @@ class Ui_MainWindow(object):
    
     def create_statistic(self):
         # get row columns
+        dimensions = []
+        measurements = []
         columnitem = []
         for index in range(self.columnlist.count()):
             item = self.columnlist.item(index).text()
+            if item in self.dimensions:
+                dimensions.append(item)
+            else:
+                measurements.append(item)
             columnitem.append(item)
         rowitems = []
         for index in range(self.rowlist.count()):
             item = self.rowlist.item(index).text()
+            if item in self.dimensions:
+                dimensions.append(item)
+            else:
+                measurements.append(item)
             rowitems.append(item)
-
-        data = self.data[columnitem+rowitems]
 
         alt_column = [alt.X, alt.Column, alt.Color]
         alt_row = [alt.Y, alt.Row, alt.Color]
         alt_plot = []
         tooltip = []
-        for i, col in enumerate(columnitem):
-            if col in self.measurements:
-                mode = self.MODE[col]
-                plot = alt_column[i](f"{mode}({col})")
-                tooltip.append(f"{mode}({col})")
+        PLOT = []
+        for dimension in dimensions:
+            if dimension in columnitem:
+                alt_plot.append(alt_column[0](dimension))
+                alt_column.pop(0)
             else:
-                plot = alt_column[i](f"{col}")
-                tooltip.append(f"{col}")
-            alt_plot.append(plot)
-        for i, row in enumerate(rowitems):
-            if row in self.measurements:
-                mode = self.MODE[row]
-                plot = alt_row[i](f"{mode}({row})")
-                tooltip.append(f"{mode}({row})")
+                alt_plot.append(alt_row[0](dimension))
+                print(alt_row[0](dimension))
+                alt_row.pop(0)
+            tooltip.append(dimension)
+        for measurement in measurements:
+            plt = alt_plot.copy()
+            if measurement in columnitem:
+                plt.append(alt_column[0](f"{self.MODE[measurement]}({measurement})"))
             else:
-                plot = alt_row[i](f"{row}")
-                tooltip.append(f"{row}")
-            alt_plot.append(plot)
-
-        alt_plot.append(alt.Tooltip(tooltip))
-        chart = (alt.Chart(data).mark_bar().encode(
-            *alt_plot
+                plt.append(alt_row[0](f"{self.MODE[measurement]}({measurement})"))
+            plt.append(alt.Tooltip(tooltip+[f"{self.MODE[measurement]}({measurement})"]))
+            DIMENSION = dimensions + [measurement]
+            chart = (alt.Chart(self.data[DIMENSION]).mark_bar().encode(
+                *plt
+                )
+                .resolve_scale(x="independent")
             )
-            .properties(title="A bar chart")
-            .configure_title(anchor="start")
-            .interactive()
-            .resolve_scale(x="independent")
-        )
+            PLOT.append(chart)
+            print(*PLOT)
+        chart = alt.vconcat(*PLOT)
         self.chart.updateChart(chart)   # plot chart
 
 

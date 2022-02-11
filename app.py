@@ -303,6 +303,7 @@ class Ui_MainWindow(object):
         else:
             dimensions = self.rowlist.item(index).text()
             keys = self.data.groupby(dimensions).groups.keys()
+        # check if it has been filtered before
         if dimensions in self.filter.keys():
             for i, key in enumerate(keys):
                 item = QtWidgets.QListWidgetItem(str(key))
@@ -311,7 +312,7 @@ class Ui_MainWindow(object):
                 else:
                     item.setCheckState(QtCore.Qt.Unchecked)
                 self.ui3.listWidget.addItem(item)
-        else:
+        else:   # check all the checkbox if picking filter first time
             for key in keys:
                 item = QtWidgets.QListWidgetItem(str(key))
                 item.setCheckState(QtCore.Qt.Checked)
@@ -326,9 +327,12 @@ class Ui_MainWindow(object):
                 filter.append(True)
             else:
                 filter.append(False)
-        self.filter[self.columnlist.item(self.index).text()] = filter
+        if self.columnselected:
+            index = self.columnlist.item(self.index).text()
+        else:
+            index = self.rowlist.item(self.index).text()
+        self.filter[index] = filter
         self.window3.hide()
-        print(self.filter)
 
 
     def secondwindow(self, index):
@@ -460,6 +464,28 @@ class Ui_MainWindow(object):
                 measurements.append(item)
             rowitems.append(item)
 
+        # filtering data
+        query = '' 
+        original_columns = self.data.columns
+        self.data.columns = [column.replace(" ", "_") for column in self.data.columns]
+        self.data.columns = [column.replace("-", "_") for column in self.data.columns]
+        for key in self.filter:
+            original_key = key
+            key = key.replace(" ","_")
+            key = key.replace("-","_")
+            query += f"{key} == ["
+            index = list(self.data[key].drop_duplicates())
+            for i, selected in enumerate(self.filter[original_key]):
+                if selected:
+                    query += f'"{index[i]}",'
+            query += "] and "
+        if len(query) != 0:
+            filtered_data = self.data.query(query[:-5])
+            filtered_data.columns = original_columns
+        else:
+            filtered_data = self.data
+        self.data.columns = original_columns
+
         alt_column = [alt.X, alt.Column, alt.Color]
         alt_row = [alt.Y, alt.Row, alt.Color]
         alt_plot = []
@@ -480,7 +506,7 @@ class Ui_MainWindow(object):
             else:
                 plt.append(alt_row[0](measurement))
             plt.append(alt.Tooltip(tooltip+[measurement]))
-            data = self.data.groupby(dimensions,as_index=False).agg(self.agg)
+            data = filtered_data.groupby(dimensions,as_index=False).agg(self.agg)
             chart = (alt.Chart(data).mark_bar().encode(
                 *plt
                 )

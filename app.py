@@ -470,7 +470,6 @@ class Ui_MainWindow(object):
                 alt_column.pop(0)
             else:
                 alt_plot.append(alt_row[0](dimension))
-                print(alt_row[0](dimension))
                 alt_row.pop(0)
             tooltip.append(dimension)
         for measurement in measurements:
@@ -484,10 +483,11 @@ class Ui_MainWindow(object):
             chart = (alt.Chart(self.data[DIMENSION]).mark_bar().encode(
                 *plt
                 )
+                .properties(height=60)
+                .interactive()
                 .resolve_scale(x="independent")
             )
             PLOT.append(chart)
-            print(*PLOT)
         chart = alt.vconcat(*PLOT)
         self.chart.updateChart(chart)   # plot chart
 

@@ -301,15 +301,14 @@ class Ui_MainWindow(object):
         dimensions = self.columnlist.item(index).text()
         if self.columnselected:
             dimensions = self.columnlist.item(index).text()
-            keys = self.data.groupby(dimensions).groups.keys()
         else:
             dimensions = self.rowlist.item(index).text()
-            keys = self.data.groupby(dimensions).groups.keys()
+        keys = self.data.groupby(dimensions).groups.keys()
         # check if it has been filtered before
         if dimensions in self.filter.keys():
-            for i, key in enumerate(keys):
+            for key in keys:
                 item = QtWidgets.QListWidgetItem(str(key))
-                if self.filter[dimensions][i]:
+                if key in self.filter[dimensions]:
                     item.setCheckState(QtCore.Qt.Checked)
                 else:
                     item.setCheckState(QtCore.Qt.Unchecked)
@@ -325,10 +324,8 @@ class Ui_MainWindow(object):
         filter = []
         for i in range(self.ui3.listWidget.count()):
             item = self.ui3.listWidget.item(i)
-            if item.checkState() == 2:
-                filter.append(True)
-            else:
-                filter.append(False)
+            if item.checkState() == 2:      # if checkbox is checked
+                filter.append(item.text())
         if self.columnselected:
             index = self.columnlist.item(self.index).text()
         else:
@@ -480,10 +477,8 @@ class Ui_MainWindow(object):
             key = key.replace(" ","_")
             key = key.replace("-","_")
             query += f"{key} == ["
-            index = list(self.data[key].drop_duplicates())
-            for i, selected in enumerate(self.filter[original_key]):
-                if selected:
-                    query += f'"{index[i]}",'
+            for selected in self.filter[original_key]:
+                query += f'"{selected}",'
             query += "] and "
         if len(query) != 0:
             filtered_data = self.data.query(query[:-5])

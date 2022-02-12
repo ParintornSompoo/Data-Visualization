@@ -108,6 +108,8 @@ class Ui_MainWindow(object):
         self.columnlist.setDefaultDropAction(QtCore.Qt.MoveAction)
         self.columnlist.doubleClicked.connect(self.getcolumnlistindex)
         self.columnlist.itemChanged.connect(self.set_grid_table)
+        self.columnlist.itemEntered.connect(self.set_grid_table)
+        self.columnlist.itemActivated.connect(self.set_grid_table)
 
         self.Rowlabel = QtWidgets.QLabel(self.frame_2)
         self.Rowlabel.setGeometry(QtCore.QRect(20, 70, 71, 21))
@@ -407,13 +409,14 @@ class Ui_MainWindow(object):
         # defind aggregrate
         self.agg = {}
         for measurement in measurements:
-            self.agg = self.MODE
             if measurement not in self.MODE.keys():
                 self.agg[measurement] = "sum"
-
+                self.MODE[measurement] = "sum"
+            else:
+                self.agg[measurement] = self.MODE[measurement]
         # clear previous table
-        self.tableWidget.setRowCount(0) 
-        self.tableWidget.setColumnCount(0)
+        self.tableWidget.clear()
+
         # insert data
         if len(dimensions) > 0 and len(measurements) > 0:
             data = self.data.groupby(dimensions, as_index=False).agg(self.agg)
@@ -422,7 +425,10 @@ class Ui_MainWindow(object):
             self.tableWidget.setColumnCount(len(data.columns.tolist()))
             # set header
             for i, column in enumerate(data.columns.tolist()):
-                item = QtWidgets.QTableWidgetItem(column)
+                if column in self.agg.keys():
+                    item = QtWidgets.QTableWidgetItem(f"{self.agg[column]} of {column}")
+                else:
+                    item = QtWidgets.QTableWidgetItem(column)
                 self.tableWidget.setHorizontalHeaderItem(i, item)
             for i, index in enumerate(data.index.tolist()):
                 item = QtWidgets.QTableWidgetItem(index)

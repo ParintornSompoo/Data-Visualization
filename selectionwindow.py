@@ -14,6 +14,8 @@ class Ui_SecondWindow(object):
         self.comboBox.addItem("")
         self.comboBox.addItem("")
         self.comboBox.addItem("")
+        self.comboBox.addItem("")
+        self.comboBox.addItem("")
         self.label = QtWidgets.QLabel(self.centralwidget)
         self.label.setGeometry(QtCore.QRect(30, 20, 221, 51))
         font = QtGui.QFont()
@@ -38,9 +40,9 @@ class Ui_SecondWindow(object):
     def retranslateUi(self, SecondWindow):
         _translate = QtCore.QCoreApplication.translate
         SecondWindow.setWindowTitle(_translate("SecondWindow", "SelectionWindow"))
-        self.comboBox.setItemText(0, _translate("SecondWindow", "sum"))
-        self.comboBox.setItemText(1, _translate("SecondWindow", "mean"))
-        self.comboBox.setItemText(2, _translate("SecondWindow", "median"))
+        AGG = ["sum", "mean", "median", "min", "max", "count"]
+        for i, agg in enumerate(AGG):
+            self.comboBox.setItemText(i, _translate("SecondWindow", agg))
         self.label.setText(_translate("SecondWindow", "Text"))
         self.pushButton.setText(_translate("SecondWindow", "Comfirm"))
 

@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 import pandas as pd
 from PyQt5 import QtCore, QtGui, QtWidgets , QtWebEngineWidgets
 from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication, QListView
@@ -261,6 +262,7 @@ class Ui_MainWindow(object):
                 self.dimensions.append(self.data.columns[i])
             else:
                 self.measurements.append(self.data.columns[i])
+        self.save_metadata()
 
     def set_listwidget(self):
         self.dimensionlist.clear()
@@ -270,6 +272,27 @@ class Ui_MainWindow(object):
         for measurements in self.measurements:
             self.measurementlist.addItem(measurements)
     
+    def save_metadata(self):
+        if os.path.exists("metadata.json"):
+            metadata_json = open("metadata.json")
+            metadata = json.load(metadata_json)
+        else:
+            metadata = {}
+        file_name = self.fileName.split("/")[-1]
+        metadata[file_name] = []
+
+        measurements = {}
+        dimensions = {}
+        measurements["measurements"] = self.measurements
+        dimensions["dimensions"] = self.dimensions
+
+        metadata[file_name].append(measurements)
+        metadata[file_name].append(dimensions)
+
+        with open("metadata.json", 'w') as outfile:
+            JSON = json.dumps(metadata, indent=4)
+            outfile.write(JSON)
+
     def getcolumnlistindex(self):
         if self.columnlist.currentItem().text() in self.measurements:
             self.index = self.columnlist.currentIndex().row()
@@ -383,6 +406,7 @@ class Ui_MainWindow(object):
             self.dimensionlist.addItem(dimension)
         for measurement in self.measurements:
             self.measurementlist.addItem(measurement)
+        self.save_metadata()
         self.window2.hide()
 
     def set_grid_table(self):

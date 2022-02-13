@@ -1,3 +1,4 @@
+from operator import gt
 import os
 import sys
 import json
@@ -9,6 +10,7 @@ from DatapreviewWindow import Ui_DatapreviewWindow
 from FilterdimensionWindow import Ui_FilterdimensionWindow
 from io import StringIO
 import altair as alt
+
 
 
 class Ui_MainWindow(object):
@@ -541,9 +543,10 @@ class Ui_MainWindow(object):
                 chart = (alt.Chart(data).mark_bar().encode(
                     *plt
                     )
-                    .resolve_scale(x="independent")
+                    .resolve_scale(x="independent",y="independent")
                     .interactive()
                     .properties(title=f"{self.MODE[measurement]} of {measurement}")
+                    .transform_filter(alt.FieldGTPredicate(field=str(measurement),gt=-1e10))
                 )
             elif self.chart_type == 1:
                 pass    # pie chart
@@ -551,7 +554,7 @@ class Ui_MainWindow(object):
                 chart = (alt.Chart(data).mark_line().encode(
                     *plt
                     )
-                    .resolve_scale(x="independent")
+                    .resolve_scale(x="independent",y="independent")
                     .interactive()
                     .properties(title=f"{self.MODE[measurement]} of {measurement}")
                 )

@@ -28,6 +28,7 @@ class Ui_MainWindow(object):
         self.MODE = {}
         self.filter = {}
         self.agg = {}
+        self.chart_type = 0  # 0 : bar, 1 : pie , 2 : line
 
         self.setupUi(MainWindow)
     def setupUi(self, MainWindow):
@@ -142,6 +143,7 @@ class Ui_MainWindow(object):
         self.chart_list = QtWidgets.QListWidget(self.tab_2)
         self.chart_list.setGeometry(QtCore.QRect(1280, 110, 181, 501))
         self.chart_list.setObjectName("chart_list")
+        self.chart_list.itemClicked.connect(self.select_chart_type)
 
         # set icon image
 
@@ -446,6 +448,9 @@ class Ui_MainWindow(object):
             self.MODE[self.rowlist.item(self.index).text()] = mode
         self.set_grid_table()
    
+    def select_chart_type(self):
+        self.chart_type = self.chart_list.currentIndex().row()
+
     def create_statistic(self):
         # get row columns
         dimensions = []
@@ -508,19 +513,31 @@ class Ui_MainWindow(object):
                 plt.append(alt_row[0](measurement))
             plt.append(alt.Tooltip(tooltip+[measurement]))
             data = filtered_data.groupby(dimensions,as_index=False).agg(self.agg)
-            chart = (alt.Chart(data).mark_bar().encode(
-                *plt
+            if self.chart_type == 0:
+                chart = (alt.Chart(data).mark_bar().encode(
+                    *plt
+                    )
+                    .resolve_scale(x="independent")
+                    .interactive()
+                    .properties(title=f"{self.MODE[measurement]} of {measurement}")
                 )
-                .resolve_scale(x="independent")
-                .interactive()
-                .properties(title=f"{self.MODE[measurement]} of {measurement}")
-            )
+            elif self.chart_type == 1:
+                pass    # pie chart
+            elif self.chart_type == 2:
+                chart = (alt.Chart(data).mark_line().encode(
+                    *plt
+                    )
+                    .resolve_scale(x="independent")
+                    .interactive()
+                    .properties(title=f"{self.MODE[measurement]} of {measurement}")
+                )
             PLOT.append(chart)
-        if measurements[0] in columnitem:
-            chart = alt.hconcat(*PLOT)
-        else:
-            chart = alt.vconcat(*PLOT)
-        self.chart.updateChart(chart)   # plot chart
+        if len(measurements) > 0:
+            if measurements[0] in columnitem:
+                chart = alt.hconcat(*PLOT)
+            else:
+                chart = alt.vconcat(*PLOT)
+            self.chart.updateChart(chart)   # plot chart
 
 
 class Item(QtWidgets.QListWidgetItem):

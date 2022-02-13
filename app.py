@@ -24,7 +24,7 @@ class Ui_MainWindow(object):
         self.pie_icon_path = os.getcwd() + "/picture/pie.png"
 
 
-        self.fileName = None
+        self.file_path = None
         self.data = None
         self.dimensions = []
         self.measurements = []
@@ -220,9 +220,9 @@ class Ui_MainWindow(object):
     def file_selected(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        fileName, _ = QFileDialog.getOpenFileName()     # selected file
-        self.fileName = fileName
-        if self.fileName != None:
+        file_path, _ = QFileDialog.getOpenFileName()     # selected file
+        self.file_path = file_path
+        if self.file_path != None:
             self.read_file()
         
     def union_data(self):       # from  union button
@@ -240,16 +240,18 @@ class Ui_MainWindow(object):
             self.data = pd.concat([self.data, data])    # union data 
 
     def read_file(self):
-        if self.fileName != "":
-            extension = self.fileName.split(".")[-1]
+        if self.file_path != "":
+            extension = self.file_path.split(".")[-1]
         else:
             return
         if extension == "csv":
-            self.data = pd.read_csv(self.fileName, encoding="ISO-8859-1")
-            self.setDimensionsMeasurements()
+            self.data = pd.read_csv(self.file_path, encoding="ISO-8859-1")
         elif extension == "xlsx":
-            self.data = pd.read_excel(self.fileName, engine='openpyxl')
-            self.setDimensionsMeasurements()
+            self.data = pd.read_excel(self.file_path, engine='openpyxl')
+        if os.path.exists("metadata.json"):
+            self.load_metadata()
+        else:
+            self.setDimensionsMeasurements()    # auto set dimension/measurement
         self.set_listwidget()
 
     def setDimensionsMeasurements(self):
@@ -274,22 +276,26 @@ class Ui_MainWindow(object):
         for measurements in self.measurements:
             self.measurementlist.addItem(measurements)
     
+    def load_metadata(self):
+        metadata_json = open("metadata.json")
+        metadata = json.load(metadata_json)
+        file_name = self.file_path.split("/")[-1]
+        if file_name in metadata.keys():
+            self.measurements = metadata[file_name]["measurements"]
+            self.dimensions = metadata[file_name]["dimensions"]
+        else:
+            self.setDimensionsMeasurements()
+
     def save_metadata(self):
         if os.path.exists("metadata.json"):
             metadata_json = open("metadata.json")
             metadata = json.load(metadata_json)
         else:
             metadata = {}
-        file_name = self.fileName.split("/")[-1]
-        metadata[file_name] = []
-
-        measurements = {}
-        dimensions = {}
-        measurements["measurements"] = self.measurements
-        dimensions["dimensions"] = self.dimensions
-
-        metadata[file_name].append(measurements)
-        metadata[file_name].append(dimensions)
+        file_name = self.file_path.split("/")[-1]
+        metadata[file_name] = {}
+        metadata[file_name]["measurements"] = self.measurements
+        metadata[file_name]["dimensions"] = self.dimensions
 
         with open("metadata.json", 'w') as outfile:
             JSON = json.dumps(metadata, indent=4)

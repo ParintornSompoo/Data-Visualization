@@ -1,4 +1,3 @@
-from operator import gt
 import os
 import sys
 import json
@@ -24,7 +23,7 @@ class Ui_MainWindow(object):
         self.pie_icon_path = os.getcwd() + "/picture/pie.png"
 
 
-        self.file_path = None
+        self.file_path = ""
         self.data = None
         self.dimensions = []
         self.measurements = []
@@ -221,8 +220,8 @@ class Ui_MainWindow(object):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         file_path, _ = QFileDialog.getOpenFileName()     # selected file
-        self.file_path = file_path
-        if self.file_path != None:
+        if file_path != "":
+            self.file_path = file_path
             self.read_file()
         
     def union_data(self):       # from  union button

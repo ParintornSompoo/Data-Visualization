@@ -23,7 +23,6 @@ class Ui_SecondWindow(object):
         self.pushButton = QtWidgets.QPushButton(self.centralwidget)
         self.pushButton.setGeometry(QtCore.QRect(90, 280, 161, 28))
         self.pushButton.setObjectName("pushButton")
-        self.pushButton.clicked.connect(lambda:self.close_window())
         self.checkBox = QtWidgets.QCheckBox(self.centralwidget)
         self.checkBox.setGeometry(QtCore.QRect(130, 130, 70, 17))
         self.checkBox.setObjectName("checkBox")
@@ -31,16 +30,20 @@ class Ui_SecondWindow(object):
         self.horizontalSlider.setGeometry(QtCore.QRect(40, 190, 241, 22))
         self.horizontalSlider.setOrientation(QtCore.Qt.Horizontal)
         self.horizontalSlider.setObjectName("horizontalSlider")
+        self.horizontalSlider.setMinimum(0)
+        self.horizontalSlider.setMaximum(101)
         self.horizontalSlider_2 = QtWidgets.QSlider(self.centralwidget)
         self.horizontalSlider_2.setGeometry(QtCore.QRect(40, 240, 241, 22))
         self.horizontalSlider_2.setOrientation(QtCore.Qt.Horizontal)
         self.horizontalSlider_2.setObjectName("horizontalSlider_2")
+        self.horizontalSlider_2.setMinimum(0)
+        self.horizontalSlider_2.setMaximum(101)
         self.horizontalSlider_2.setSliderPosition(100)
         self.label_2 = QtWidgets.QLabel(self.centralwidget)
-        self.label_2.setGeometry(QtCore.QRect(20, 160, 47, 13))
+        self.label_2.setGeometry(QtCore.QRect(20, 160, 91, 13))
         self.label_2.setObjectName("label_2")
         self.label_3 = QtWidgets.QLabel(self.centralwidget)
-        self.label_3.setGeometry(QtCore.QRect(260, 160, 47, 13))
+        self.label_3.setGeometry(QtCore.QRect(230, 160, 91, 13))
         self.label_3.setObjectName("label_3")
 
         SecondWindow.setCentralWidget(self.centralwidget)
@@ -49,9 +52,6 @@ class Ui_SecondWindow(object):
         QtCore.QMetaObject.connectSlotsByName(SecondWindow)
 
         self.mode = self.comboBox.currentText()
-
-    def close_window(self):
-        self.secondwindow.close()
         
     def retranslateUi(self, SecondWindow):
         _translate = QtCore.QCoreApplication.translate

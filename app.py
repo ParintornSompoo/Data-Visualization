@@ -188,6 +188,9 @@ class Ui_MainWindow(object):
         self.ui = Ui_SecondWindow()
         self.ui.setupUi(self.window)
         self.ui.comboBox.currentTextChanged.connect(self.on_combobox_changed)
+        self.ui.pushButton.clicked.connect(self.set_measurement_filter)
+        self.ui.horizontalSlider.sliderMoved.connect(self.update_minmax_label)
+        self.ui.horizontalSlider_2.sliderMoved.connect(self.update_minmax_label)
 
 
         self.window2 = QtWidgets.QMainWindow()
@@ -368,21 +371,40 @@ class Ui_MainWindow(object):
     def secondwindow(self, index):
         _translate = QtCore.QCoreApplication.translate
         if self.columnselected:
-            self.ui.label.setText(_translate("SecondWindow", 
-            self.columnlist.item(index).text()))
-            if self.columnlist.item(index).text() in self.MODE.keys():
-                self.ui.comboBox.setCurrentText(self.MODE[self.columnlist.item(index).text()])
-            else:
-                self.ui.comboBox.setCurrentText(self.columnlist.item(index).mode)
+            measurement = self.columnlist.item(index).text()
         else:
-            self.ui.label.setText(_translate("SecondWindow", 
-            self.rowlist.item(index).text()))
-            if self.rowlist.item(index).text() in self.MODE.keys():
-                self.ui.comboBox.setCurrentText(self.MODE[self.rowlist.item(index).text()])
-            else:
-                self.ui.comboBox.setCurrentText(self.rowlist.item(index).mode)
+            measurement = self.rowlist.item(index).text()
+        self.ui.label.setText(_translate("SecondWindow",measurement))
+        self.Min = self.data[measurement].min()
+        self.Max = self.data[measurement].max()
+        self.ui.label_2.setText(_translate("SecondWindow", f"Min : {self.Min}"))
+        self.ui.label_3.setText(_translate("SecondWindow", f"Max : {self.Max}"))
+        if measurement in self.MODE.keys():
+            self.ui.comboBox.setCurrentText(self.MODE[measurement])
+        else:
+            self.ui.comboBox.setCurrentText(self.rowlist.item(index).mode)
         self.window.show()
     
+    def update_minmax_label(self):
+        min_value = self.ui.horizontalSlider.value()
+        max_value = self.ui.horizontalSlider_2.value()
+        # transform range
+        Min_Value = self.transform_range(min_value)
+        Max_Value = self.transform_range(max_value)
+
+        _translate = QtCore.QCoreApplication.translate
+        self.ui.label_2.setText(_translate("SecondWindow", f"Min : {Min_Value}"))
+        self.ui.label_3.setText(_translate("SecondWindow", f"Max : {Max_Value}"))
+
+    def set_measurement_filter(self):
+        min_value = self.ui.horizontalSlider.value()
+        max_value = self.ui.horizontalSlider_2.value()
+        # transform range
+        Min_Value = self.transform_range(min_value)
+        Max_Value = self.transform_range(max_value)
+        print(Min_Value)
+        print(Max_Value)
+        self.ui.secondwindow.close()
 
     def datapreviewwindow(self):
         # clear dimensions, measurements Qlistwidget
@@ -417,25 +439,49 @@ class Ui_MainWindow(object):
         self.save_metadata()
         self.window2.hide()
 
-    def set_grid_table(self):
+    def get_dimensions(self):   # get dimensions from rowlist and columnlist
         dimensions = []
-        measurements = []
         for index in range(self.rowlist.count()):
             item = self.rowlist.item(index).text()
             if item in self.dimensions:
                 dimensions.append(item)
-            else:
-                measurements.append(item)
         for index in range(self.columnlist.count()):
             item = self.columnlist.item(index).text()
             if item in self.dimensions:
                 dimensions.append(item)
-            else:
-                measurements.append(item)
+        dimensions = list(dict.fromkeys(dimensions))    # remove duplicates
+        return dimensions
 
-        # remove duplicates
-        dimensions = list(dict.fromkeys(dimensions))
-        measurements = list(dict.fromkeys(measurements))
+    def get_measurements(self):   # get measuments from rowlist and columnlist
+        measurements = []
+        for index in range(self.rowlist.count()):
+            item = self.rowlist.item(index).text()
+            if item in self.measurements:
+                measurements.append(item)
+        for index in range(self.columnlist.count()):
+            item = self.columnlist.item(index).text()
+            if item in self.measurements:
+                measurements.append(item)
+        measurements = list(dict.fromkeys(measurements))    # remove duplicates
+        return measurements
+
+    def get_rowlist(self): # get row from rowlist
+        rowitems = []
+        for index in range(self.rowlist.count()):
+            item = self.rowlist.item(index).text()
+            rowitems.append(item)
+        return rowitems
+
+    def get_columnlist(self): # get column from columnlist
+        columnitem = []
+        for index in range(self.columnlist.count()):
+            item = self.columnlist.item(index).text()
+            columnitem.append(item)
+        return columnitem
+
+    def set_grid_table(self):
+        dimensions = self.get_dimensions()
+        measurements = self.get_measurements()
 
         # defind aggregrate
         self.agg = {}
@@ -483,28 +529,7 @@ class Ui_MainWindow(object):
     def select_chart_type(self):
         self.chart_type = self.chart_list.currentIndex().row()
 
-    def create_statistic(self):
-        # get row columns
-        dimensions = []
-        measurements = []
-        columnitem = []
-        for index in range(self.columnlist.count()):
-            item = self.columnlist.item(index).text()
-            if item in self.dimensions:
-                dimensions.append(item)
-            else:
-                measurements.append(item)
-            columnitem.append(item)
-        rowitems = []
-        for index in range(self.rowlist.count()):
-            item = self.rowlist.item(index).text()
-            if item in self.dimensions:
-                dimensions.append(item)
-            else:
-                measurements.append(item)
-            rowitems.append(item)
-
-        # filtering data
+    def get_filter_data(self):
         query = '' 
         original_columns = self.data.columns
         self.data.columns = [column.replace(" ", "_") for column in self.data.columns]
@@ -523,7 +548,18 @@ class Ui_MainWindow(object):
         else:
             filtered_data = self.data
         self.data.columns = original_columns
+        return filtered_data
 
+    def create_statistic(self):
+        # get row columns
+        dimensions = self.get_dimensions()
+        measurements = self.get_measurements()
+        columnitem = self.get_columnlist()
+
+        # get filtered data
+        filtered_data = self.get_filter_data()
+
+        # ploting
         alt_column = [alt.X, alt.Column, alt.Color]
         alt_row = [alt.Y, alt.Row, alt.Color]
         alt_plot = []
@@ -572,6 +608,9 @@ class Ui_MainWindow(object):
                 chart = alt.vconcat(*PLOT)
             self.chart.updateChart(chart)   # plot chart
 
+    def transform_range(self, value):
+        NewRange = self.Max - self.Min
+        return ((value * NewRange) / 100) + self.Min
 
 class Item(QtWidgets.QListWidgetItem):
     def __init__(self, *args, **kwargs):

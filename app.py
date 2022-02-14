@@ -29,6 +29,7 @@ class Ui_MainWindow(object):
         self.measurements = []
         self.MODE = {}
         self.filter = {}
+        self.measurement_filter = {}
         self.agg = {}
         self.chart_type = 0  # 0 : bar, 1 : pie , 2 : line
 
@@ -379,6 +380,9 @@ class Ui_MainWindow(object):
         self.Max = self.data[measurement].max()
         self.ui.label_2.setText(_translate("SecondWindow", f"Min : {self.Min}"))
         self.ui.label_3.setText(_translate("SecondWindow", f"Max : {self.Max}"))
+        self.ui.horizontalSlider.setSliderPosition(0)
+        self.ui.horizontalSlider_2.setSliderPosition(100)
+        self.ui.checkBox.setCheckState(QtCore.Qt.Unchecked)
         if measurement in self.MODE.keys():
             self.ui.comboBox.setCurrentText(self.MODE[measurement])
         else:
@@ -402,8 +406,15 @@ class Ui_MainWindow(object):
         # transform range
         Min_Value = self.transform_range(min_value)
         Max_Value = self.transform_range(max_value)
-        print(Min_Value)
-        print(Max_Value)
+        if self.columnselected:
+            measurement = self.columnlist.item(self.index).text()
+        else:
+            measurement = self.rowlist.item(self.index).text()
+        if self.ui.checkBox.checkState() == 2:
+            self.measurement_filter[measurement] = {"min" : Min_Value, "max" : Max_Value}
+            self.set_grid_table()   # reset grid table data
+        else:
+            self.measurement_filter.pop(measurement, None)
         self.ui.secondwindow.close()
 
     def datapreviewwindow(self):
@@ -478,25 +489,31 @@ class Ui_MainWindow(object):
             item = self.columnlist.item(index).text()
             columnitem.append(item)
         return columnitem
+    
+    def get_agg(self, measurements): # get aggregrate (dict)
+        agg = {}
+        for measurement in measurements:
+            if measurement not in self.MODE.keys():
+                agg[measurement] = "sum"
+                self.MODE[measurement] = "sum"
+            else:
+                agg[measurement] = self.MODE[measurement]
+        return agg
 
     def set_grid_table(self):
         dimensions = self.get_dimensions()
         measurements = self.get_measurements()
 
-        # defind aggregrate
-        self.agg = {}
-        for measurement in measurements:
-            if measurement not in self.MODE.keys():
-                self.agg[measurement] = "sum"
-                self.MODE[measurement] = "sum"
-            else:
-                self.agg[measurement] = self.MODE[measurement]
+        # get aggregrate
+        self.agg = self.get_agg(measurements)
+
         # clear previous table
         self.tableWidget.clear()
 
+        filtered_data = self.get_filter_data()
         # insert data
         if len(dimensions) > 0 and len(measurements) > 0:
-            data = self.data.groupby(dimensions, as_index=False).agg(self.agg)
+            data = filtered_data.groupby(dimensions, as_index=False).agg(self.agg)
             # set row,column count
             self.tableWidget.setRowCount(len(data.index.tolist()))
             self.tableWidget.setColumnCount(len(data.columns.tolist()))
@@ -534,6 +551,7 @@ class Ui_MainWindow(object):
         original_columns = self.data.columns
         self.data.columns = [column.replace(" ", "_") for column in self.data.columns]
         self.data.columns = [column.replace("-", "_") for column in self.data.columns]
+        # dimensions filter
         for key in self.filter:
             original_key = key
             key = key.replace(" ","_")
@@ -542,6 +560,15 @@ class Ui_MainWindow(object):
             for selected in self.filter[original_key]:
                 query += f'"{selected}",'
             query += "] and "
+        # measurements filter
+        for key in self.measurement_filter:
+            original_key = key
+            key = key.replace(" ","_")
+            key = key.replace("-","_")
+            min = self.measurement_filter[key]["min"]
+            max = self.measurement_filter[key]["max"]
+            query += f"{key} >= {min} and {key} <= {max} and"
+
         if len(query) != 0:
             filtered_data = self.data.query(query[:-5])
             filtered_data.columns = original_columns

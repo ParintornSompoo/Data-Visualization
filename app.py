@@ -211,10 +211,9 @@ class Ui_MainWindow(object):
         self.union_button.setText(_translate("MainWindow", "View Data"))
         self.union_button.setText(_translate("MainWindow", "Union data"))
         self.Columnlabel.setText(_translate("MainWindow", "Column"))
-        self.statisticbtn.setText(_translate("MainWindow", "Statistic"))
+        self.statisticbtn.setText(_translate("MainWindow", "Plot"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Grid Table"))
-        self.statisticbtn.setText(_translate("MainWindow", "Statistic"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Plot"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Graph"))
 
     def file_selected(self):
         options = QFileDialog.Options()
@@ -409,6 +408,8 @@ class Ui_MainWindow(object):
         # set new dimensions, measurements in mainwindow
         self.dimensionlist.clear()
         self.measurementlist.clear()
+        self.rowlist.clear()
+        self.columnlist.clear()
         for dimension in self.dimensions:
             self.dimensionlist.addItem(dimension)
         for measurement in self.measurements:

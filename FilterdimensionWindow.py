@@ -22,13 +22,6 @@ class Ui_FilterdimensionWindow(object):
         self.pushButton_3.setObjectName("pushButton_3")
         self.pushButton_3.clicked.connect(self.clear_filter)
         FilterdimensionWindow.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(FilterdimensionWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 26))
-        self.menubar.setObjectName("menubar")
-        FilterdimensionWindow.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(FilterdimensionWindow)
-        self.statusbar.setObjectName("statusbar")
-        FilterdimensionWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(FilterdimensionWindow)
         QtCore.QMetaObject.connectSlotsByName(FilterdimensionWindow)

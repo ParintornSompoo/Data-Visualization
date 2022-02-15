@@ -191,7 +191,9 @@ class Ui_MainWindow(object):
         self.ui.comboBox.currentTextChanged.connect(self.on_combobox_changed)
         self.ui.pushButton.clicked.connect(self.set_measurement_filter)
         self.ui.horizontalSlider.sliderMoved.connect(self.update_minmax_label)
+        self.ui.horizontalSlider.valueChanged.connect(self.update_minmax_label)
         self.ui.horizontalSlider_2.sliderMoved.connect(self.update_minmax_label)
+        self.ui.horizontalSlider_2.valueChanged.connect(self.update_minmax_label)
 
 
         self.window2 = QtWidgets.QMainWindow()
@@ -378,11 +380,24 @@ class Ui_MainWindow(object):
         self.ui.label.setText(_translate("SecondWindow",measurement))
         self.Min = self.data[measurement].min()
         self.Max = self.data[measurement].max()
-        self.ui.label_2.setText(_translate("SecondWindow", f"Min : {self.Min}"))
-        self.ui.label_3.setText(_translate("SecondWindow", f"Max : {self.Max}"))
-        self.ui.horizontalSlider.setSliderPosition(0)
-        self.ui.horizontalSlider_2.setSliderPosition(100)
-        self.ui.checkBox.setCheckState(QtCore.Qt.Unchecked)
+        
+        if measurement in self.measurement_filter.keys():
+            min = self.measurement_filter[measurement]["min"]
+            max = self.measurement_filter[measurement]["max"]
+            min_pos = self.reverse_transform_range(min)
+            max_pos = self.reverse_transform_range(max)
+            self.ui.horizontalSlider.setSliderPosition(int(min_pos))
+            self.ui.horizontalSlider_2.setSliderPosition(int(max_pos))
+            self.ui.checkBox.setCheckState(QtCore.Qt.Checked)
+            self.ui.label_2.setText(_translate("SecondWindow", f"Min : {min}"))
+            self.ui.label_3.setText(_translate("SecondWindow", f"Max : {max}"))
+        else:
+            self.ui.horizontalSlider.setSliderPosition(0)
+            self.ui.horizontalSlider_2.setSliderPosition(100)
+            self.ui.checkBox.setCheckState(QtCore.Qt.Unchecked)
+            self.ui.label_2.setText(_translate("SecondWindow", f"Min : {self.Min}"))
+            self.ui.label_3.setText(_translate("SecondWindow", f"Max : {self.Max}"))
+
         if measurement in self.MODE.keys():
             self.ui.comboBox.setCurrentText(self.MODE[measurement])
         else:
@@ -664,6 +679,10 @@ class Ui_MainWindow(object):
     def transform_range(self, value):
         NewRange = self.Max - self.Min
         return ((value * NewRange) / 100) + self.Min
+
+    def reverse_transform_range(self, value):
+        OldRange = self.Max - self.Min
+        return (((value - self.Min) * 100) / OldRange)
 
 class Item(QtWidgets.QListWidgetItem):
     def __init__(self, *args, **kwargs):

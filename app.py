@@ -608,7 +608,7 @@ class Ui_MainWindow(object):
                 plt.append(alt_row[0](measurement))
             plt.append(alt.Tooltip(tooltip+[measurement]))
             data = filtered_data.groupby(dimensions,as_index=False).agg(self.agg)
-            if self.chart_type == 0:
+            if self.chart_type == 0:        # bar charts
                 chart = (alt.Chart(data).mark_bar().encode(
                     *plt
                     )
@@ -617,22 +617,48 @@ class Ui_MainWindow(object):
                     .properties(title=f"{self.MODE[measurement]} of {measurement}")
                     .transform_filter(alt.FieldGTPredicate(field=str(measurement),gt=-1e10))
                 )
-            elif self.chart_type == 1:
-                pass    # pie chart
-            elif self.chart_type == 2:
+            elif self.chart_type == 1:      # pie charts
+                CHART = []
+                for dimension in dimensions:
+                    sub_chart = []
+                    data = filtered_data.groupby(dimension,as_index=False).agg(self.agg)
+                    BASE = alt.Chart(data).mark_arc().encode(
+                        color=alt.Color(dimension)
+                    )
+                    for measurement in measurements:
+                        base = BASE.encode(
+                            theta=alt.Theta(measurement),
+                            tooltip=alt.Tooltip([dimension,measurement])
+                        )
+                        sub_chart.append(base)
+                    CHART.append(sub_chart)
+            elif self.chart_type == 2:      # line charts
                 chart = (alt.Chart(data).mark_line().encode(
                     *plt
                     )
                     .resolve_scale(x="independent",y="independent")
                     .interactive()
                     .properties(title=f"{self.MODE[measurement]} of {measurement}")
-                )
-            PLOT.append(chart)
+                ) 
         if len(measurements) > 0:
             if measurements[0] in columnitem:
-                chart = alt.hconcat(*PLOT)
+                if self.chart_type == 1:
+                    hchart = []
+                    for sub_chart in CHART:
+                        hchart.append(alt.hconcat(*sub_chart))
+                    chart = alt.vconcat(*hchart)
+                else:
+                    PLOT.append(chart)
+                    chart = alt.hconcat(*PLOT)
             else:
-                chart = alt.vconcat(*PLOT)
+                if self.chart_type == 1:
+                    vchart = []
+                    for sub_chart in CHART:
+                        vchart.append(alt.vconcat(*sub_chart))
+                    chart = alt.hconcat(*vchart)
+                else:
+                    PLOT.append(chart)
+                    chart = alt.vconcat(*PLOT)
             self.chart.updateChart(chart)   # plot chart
 
     def transform_range(self, value):

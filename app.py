@@ -26,6 +26,7 @@ class Ui_MainWindow(object):
         self.file_path = ""
         self.data = None
         self.dimensions = []
+        self.datetime_dimensions = []
         self.measurements = []
         self.MODE = {}
         self.filter = {}
@@ -261,15 +262,19 @@ class Ui_MainWindow(object):
     def setDimensionsMeasurements(self):
         self.dimensions = []
         self.measurements = []
-        for i, col in enumerate(self.data.columns):
-            if self.data[col].dtypes == "O":
-                self.dimensions.append(self.data.columns[i])
+        self.datetime_dimensions = []
+        for col in self.data.columns:
+            if self.is_datetime(col):
+                self.dimensions.append(col)
+                self.datetime_dimensions.append(col)
+            elif self.data[col].dtypes == "O":
+                self.dimensions.append(col)
             elif col.lower().find("id") > 0:
-                self.dimensions.append(self.data.columns[i])
+                self.dimensions.append(col)
             elif col.lower().find("code") > 0:
-                self.dimensions.append(self.data.columns[i])
+                self.dimensions.append(col)
             else:
-                self.measurements.append(self.data.columns[i])
+                self.measurements.append(col)
         self.save_metadata()
 
     def set_listwidget(self):
@@ -287,6 +292,7 @@ class Ui_MainWindow(object):
         if file_name in metadata.keys():
             self.measurements = metadata[file_name]["measurements"]
             self.dimensions = metadata[file_name]["dimensions"]
+            self.datetime_dimensions = metadata[file_name]["datetime"]
         else:
             self.setDimensionsMeasurements()
 
@@ -300,6 +306,7 @@ class Ui_MainWindow(object):
         metadata[file_name] = {}
         metadata[file_name]["measurements"] = self.measurements
         metadata[file_name]["dimensions"] = self.dimensions
+        metadata[file_name]["datetime"] = self.datetime_dimensions
 
         with open("metadata.json", 'w') as outfile:
             JSON = json.dumps(metadata, indent=4)
@@ -683,6 +690,14 @@ class Ui_MainWindow(object):
     def reverse_transform_range(self, value):
         OldRange = self.Max - self.Min
         return (((value - self.Min) * 100) / OldRange)
+    
+    def is_datetime(self, word):
+        if word.lower().find("date") > 0:
+            return True
+        if word.lower().find("datetime") > 0:
+            return True
+        else:
+            return False
 
 class Item(QtWidgets.QListWidgetItem):
     def __init__(self, *args, **kwargs):

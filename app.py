@@ -255,6 +255,7 @@ class Ui_MainWindow(object):
             self.data = pd.read_excel(self.file_path, engine='openpyxl')
         if os.path.exists("metadata.json"):
             self.load_metadata()
+            self.set_datetime_dimensions()
         else:
             self.setDimensionsMeasurements()    # auto set dimension/measurement
         self.set_listwidget()
@@ -275,7 +276,15 @@ class Ui_MainWindow(object):
                 self.dimensions.append(col)
             else:
                 self.measurements.append(col)
+        self.set_datetime_dimensions()
         self.save_metadata()
+
+    def set_datetime_dimensions(self):
+        for DATETIME in self.datetime_dimensions:
+            datetime_date = pd.to_datetime(self.data[DATETIME], format="%d/%m/%Y")
+            self.data[f"{DATETIME} (year)"] = datetime_date.dt.year
+            self.data[f"{DATETIME} (month)"] = datetime_date.dt.month
+            self.data[f"{DATETIME} (day)"] = datetime_date.dt.day
 
     def set_listwidget(self):
         self.dimensionlist.clear()

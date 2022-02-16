@@ -679,7 +679,7 @@ class Ui_MainWindow(object):
             key = key.replace("-","_")
             min = self.measurement_filter[key]["min"]
             max = self.measurement_filter[key]["max"]
-            query += f"{key} >= {min} and {key} <= {max} and"
+            query += f"{key} >= {min} and {key} <= {max} and "
         if len(query) != 0:
             filtered_data = self.data.query(query[:-5])
             filtered_data.columns = original_columns

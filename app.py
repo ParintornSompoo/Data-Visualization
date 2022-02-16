@@ -207,6 +207,7 @@ class Ui_MainWindow(object):
         self.ui3.setupUi(self.window3)
         self.ui3.confirm_button.clicked.connect(self.set_filter)
         self.ui3.drill_down_button.clicked.connect(self.drill_down)
+        self.ui3.drill_up_button.clicked.connect(self.drill_up)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -311,12 +312,22 @@ class Ui_MainWindow(object):
         columnlist = self.get_columnlist()
         if item in rowlist+columnlist:
             return
-            
+
         if self.columnselected:
             self.columnlist.insertItem(self.index+1,item)
         else:
             self.rowlist.insertItem(self.index+1,item)
 
+    def drill_up(self):
+        if self.columnselected:
+            item = self.columnlist.item(self.index).text()
+        else:
+            item = self.rowlist.item(self.index).text()
+        if item.find("year") >= 0:
+            pass
+        elif item.find("month") >= 0:
+            pass
+        
     def set_listwidget(self):
         self.dimensionlist.clear()
         self.measurementlist.clear()
@@ -365,11 +376,15 @@ class Ui_MainWindow(object):
         elif item in self.dimensions:
             self.columnselected = True
             self.index = self.columnlist.currentIndex().row()
+            self.ui3.drill_up_button.hide()
+            self.ui3.drill_down_button.hide()
             self.filter_dimension_Window(self.index)
         for datetime in self.datetime_dimensions:
             if item.find(datetime) >= 0:
                 self.columnselected = True
                 self.index = self.columnlist.currentIndex().row()
+                self.ui3.drill_up_button.show()
+                self.ui3.drill_down_button.show()
                 self.filter_dimension_Window(self.index)
                 break
 
@@ -386,11 +401,15 @@ class Ui_MainWindow(object):
         elif item in self.dimensions:
             self.columnselected = False
             self.index = self.rowlist.currentIndex().row()
+            self.ui3.drill_up_button.hide()
+            self.ui3.drill_down_button.hide()
             self.filter_dimension_Window(self.index)
         for datetime in self.datetime_dimensions:
             if item.find(datetime) >= 0:
                 self.columnselected = False
                 self.index = self.rowlist.currentIndex().row()
+                self.ui3.drill_up_button.show()
+                self.ui3.drill_down_button.show()
                 self.filter_dimension_Window(self.index)
                 break
     
@@ -674,13 +693,21 @@ class Ui_MainWindow(object):
         dimensions = self.get_dimensions()
         measurements = self.get_measurements()
         columnitem = self.get_columnlist()
-
+        if len(dimensions) == 0:
+            return
         # get filtered data
         filtered_data = self.get_filter_data()
-
         # ploting
-        alt_column = [alt.X, alt.Column, alt.Color]
-        alt_row = [alt.Y, alt.Row, alt.Color]
+        if len(dimensions) == 1:
+            alt_column = [alt.X, alt.Column, alt.Color]
+            alt_row = [alt.Y, alt.Row, alt.Color]
+        else:
+            if dimensions[0] in columnitem:
+                alt_column = [alt.Column, alt.X, alt.Color]
+                alt_row = [alt.Y, alt.Row, alt.Color]
+            else:
+                alt_column = [alt.X, alt.Column, alt.Color]
+                alt_row = [alt.Row, alt.Y, alt.Color]
         alt_plot = []
         tooltip = []
         PLOT = []

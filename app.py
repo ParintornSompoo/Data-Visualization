@@ -374,9 +374,7 @@ class Ui_MainWindow(object):
                 break
     
     def filter_dimension_Window(self,index):
-        print("Filter dimension")
         self.ui3.listWidget.clear()
-        dimensions = self.columnlist.item(index).text()
         if self.columnselected:
             dimensions = self.columnlist.item(index).text()
         else:
@@ -386,7 +384,7 @@ class Ui_MainWindow(object):
         if dimensions in self.filter.keys():
             for key in keys:
                 item = QtWidgets.QListWidgetItem(str(key))
-                if key in self.filter[dimensions]:
+                if str(key) in self.filter[dimensions]:
                     item.setCheckState(QtCore.Qt.Checked)
                 else:
                     item.setCheckState(QtCore.Qt.Unchecked)
@@ -618,14 +616,21 @@ class Ui_MainWindow(object):
         original_columns = self.data.columns
         self.data.columns = [column.replace(" ", "_") for column in self.data.columns]
         self.data.columns = [column.replace("-", "_") for column in self.data.columns]
+        self.data.columns = [column.replace("(", "_") for column in self.data.columns]
+        self.data.columns = [column.replace(")", "") for column in self.data.columns]
         # dimensions filter
         for key in self.filter:
             original_key = key
             key = key.replace(" ","_")
             key = key.replace("-","_")
+            key = key.replace("(","_")
+            key = key.replace(")","")
             query += f"{key} == ["
             for selected in self.filter[original_key]:
-                query += f'"{selected}",'
+                if self.is_datetime(original_key):
+                    query += f'{selected},'
+                else:
+                    query += f'"{selected}",'
             query += "] and "
         # measurements filter
         for key in self.measurement_filter:
@@ -635,7 +640,6 @@ class Ui_MainWindow(object):
             min = self.measurement_filter[key]["min"]
             max = self.measurement_filter[key]["max"]
             query += f"{key} >= {min} and {key} <= {max} and"
-
         if len(query) != 0:
             filtered_data = self.data.query(query[:-5])
             filtered_data.columns = original_columns

@@ -205,7 +205,8 @@ class Ui_MainWindow(object):
         self.window3 = QtWidgets.QMainWindow()
         self.ui3 = Ui_FilterdimensionWindow()
         self.ui3.setupUi(self.window3)
-        self.ui3.pushButton.clicked.connect(self.set_filter)
+        self.ui3.confirm_button.clicked.connect(self.set_filter)
+        self.ui3.drill_down_button.clicked.connect(self.drill_down)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -295,6 +296,14 @@ class Ui_MainWindow(object):
             item = self.columnlist.item(index).text()
             if item in self.datetime_dimensions:
                 self.columnlist.item(index).setText(f"{item}(year)")
+
+    def drill_down(self):
+        if self.columnselected:
+            item = self.columnlist.item(self.index).text()
+        else:
+            item = self.rowlist.item(self.index).text()
+        if item.find("year") >= 0:
+            print("drill_down")
 
     def set_listwidget(self):
         self.dimensionlist.clear()

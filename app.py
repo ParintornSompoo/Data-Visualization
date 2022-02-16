@@ -303,7 +303,19 @@ class Ui_MainWindow(object):
         else:
             item = self.rowlist.item(self.index).text()
         if item.find("year") >= 0:
-            print("drill_down")
+            item = item.replace("year", "month")
+        elif item.find("month") >= 0:
+            item = item.replace("month", "day")
+
+        rowlist = self.get_rowlist()
+        columnlist = self.get_columnlist()
+        if item in rowlist+columnlist:
+            return
+            
+        if self.columnselected:
+            self.columnlist.insertItem(self.index+1,item)
+        else:
+            self.rowlist.insertItem(self.index+1,item)
 
     def set_listwidget(self):
         self.dimensionlist.clear()

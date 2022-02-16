@@ -270,9 +270,9 @@ class Ui_MainWindow(object):
                 self.datetime_dimensions.append(col)
             elif self.data[col].dtypes == "O":
                 self.dimensions.append(col)
-            elif col.lower().find("id") > 0:
+            elif col.lower().find("id") >= 0:
                 self.dimensions.append(col)
-            elif col.lower().find("code") > 0:
+            elif col.lower().find("code") >= 0:
                 self.dimensions.append(col)
             else:
                 self.measurements.append(col)
@@ -282,9 +282,19 @@ class Ui_MainWindow(object):
     def set_datetime_dimensions(self):
         for DATETIME in self.datetime_dimensions:
             datetime_date = pd.to_datetime(self.data[DATETIME], format="%d/%m/%Y")
-            self.data[f"{DATETIME} (year)"] = datetime_date.dt.year
-            self.data[f"{DATETIME} (month)"] = datetime_date.dt.month
-            self.data[f"{DATETIME} (day)"] = datetime_date.dt.day
+            self.data[f"{DATETIME}(year)"] = datetime_date.dt.year
+            self.data[f"{DATETIME}(month)"] = datetime_date.dt.month
+            self.data[f"{DATETIME}(day)"] = datetime_date.dt.day
+
+    def datetime_dimensions_show(self):
+        for index in range(self.rowlist.count()):
+            item = self.rowlist.item(index).text()
+            if item in self.datetime_dimensions:
+                self.rowlist.item(index).setText(f"{item}(year)")
+        for index in range(self.columnlist.count()):
+            item = self.columnlist.item(index).text()
+            if item in self.datetime_dimensions:
+                self.columnlist.item(index).setText(f"{item}(year)")
 
     def set_listwidget(self):
         self.dimensionlist.clear()
@@ -322,34 +332,49 @@ class Ui_MainWindow(object):
             outfile.write(JSON)
 
     def getcolumnlistindex(self):
-        if self.columnlist.currentItem().text() in self.measurements:
+        item = self.columnlist.currentItem().text()
+        if item in self.measurements:
             self.index = self.columnlist.currentIndex().row()
             if type(self.columnlist.currentItem()) != Item:
-                i = Item(self.columnlist.currentItem().text())
+                i = Item(item)
                 self.columnlist.takeItem(self.index)
                 self.columnlist.insertItem(self.index,i)
             self.columnselected = True
             self.secondwindow(self.index)
-        elif self.columnlist.currentItem().text() in self.dimensions:
+        elif item in self.dimensions:
             self.columnselected = True
             self.index = self.columnlist.currentIndex().row()
             self.filter_dimension_Window(self.index)
+        for datetime in self.datetime_dimensions:
+            if item.find(datetime) >= 0:
+                self.columnselected = True
+                self.index = self.columnlist.currentIndex().row()
+                self.filter_dimension_Window(self.index)
+                break
 
     def getrowlistindex(self):
-        if self.rowlist.currentItem().text() in self.measurements:
+        item = self.rowlist.currentItem().text()
+        if item in self.measurements:
             self.index = self.rowlist.currentIndex().row()
             if type(self.rowlist.currentItem()) != Item:
-                i = Item(self.rowlist.currentItem().text())
+                i = Item(item)
                 self.rowlist.takeItem(self.index)
                 self.rowlist.insertItem(self.index,i)
             self.columnselected = False
             self.secondwindow(self.index)
-        elif self.rowlist.currentItem().text() in self.dimensions:
+        elif item in self.dimensions:
             self.columnselected = False
             self.index = self.rowlist.currentIndex().row()
             self.filter_dimension_Window(self.index)
+        for datetime in self.datetime_dimensions:
+            if item.find(datetime) >= 0:
+                self.columnselected = False
+                self.index = self.rowlist.currentIndex().row()
+                self.filter_dimension_Window(self.index)
+                break
     
     def filter_dimension_Window(self,index):
+        print("Filter dimension")
         self.ui3.listWidget.clear()
         dimensions = self.columnlist.item(index).text()
         if self.columnselected:
@@ -487,10 +512,20 @@ class Ui_MainWindow(object):
             item = self.rowlist.item(index).text()
             if item in self.dimensions:
                 dimensions.append(item)
+                continue
+            for datetime in self.datetime_dimensions:
+                if item.find(datetime) >= 0:
+                    dimensions.append(item)
+                    break
         for index in range(self.columnlist.count()):
             item = self.columnlist.item(index).text()
             if item in self.dimensions:
                 dimensions.append(item)
+                continue
+            for datetime in self.datetime_dimensions:
+                if item.find(datetime) >= 0:
+                    dimensions.append(item)
+                    break
         dimensions = list(dict.fromkeys(dimensions))    # remove duplicates
         return dimensions
 
@@ -532,6 +567,7 @@ class Ui_MainWindow(object):
         return agg
 
     def set_grid_table(self):
+        self.datetime_dimensions_show()
         dimensions = self.get_dimensions()
         measurements = self.get_measurements()
 
@@ -625,10 +661,10 @@ class Ui_MainWindow(object):
         PLOT = []
         for dimension in dimensions:
             if dimension in columnitem:
-                alt_plot.append(alt_column[0](dimension))
+                alt_plot.append(alt_column[0](f"{dimension}:O"))
                 alt_column.pop(0)
             else:
-                alt_plot.append(alt_row[0](dimension))
+                alt_plot.append(alt_row[0](f"{dimension}:O"))
                 alt_row.pop(0)
             tooltip.append(dimension)
         for measurement in measurements:
@@ -701,9 +737,9 @@ class Ui_MainWindow(object):
         return (((value - self.Min) * 100) / OldRange)
     
     def is_datetime(self, word):
-        if word.lower().find("date") > 0:
+        if word.lower().find("date") >= 0:
             return True
-        if word.lower().find("datetime") > 0:
+        if word.lower().find("datetime") >= 0:
             return True
         else:
             return False

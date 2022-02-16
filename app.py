@@ -648,6 +648,7 @@ class Ui_MainWindow(object):
                     .properties(title=f"{self.MODE[measurement]} of {measurement}")
                     .transform_filter(alt.FieldGTPredicate(field=str(measurement),gt=-1e10))
                 )
+                PLOT.append(chart)
             elif self.chart_type == 1:      # pie charts
                 CHART = []
                 for dimension in dimensions:
@@ -671,6 +672,7 @@ class Ui_MainWindow(object):
                     .interactive()
                     .properties(title=f"{self.MODE[measurement]} of {measurement}")
                 ) 
+                PLOT.append(chart)
         if len(measurements) > 0:
             if measurements[0] in columnitem:
                 if self.chart_type == 1:
@@ -679,7 +681,6 @@ class Ui_MainWindow(object):
                         hchart.append(alt.hconcat(*sub_chart))
                     chart = alt.vconcat(*hchart)
                 else:
-                    PLOT.append(chart)
                     chart = alt.hconcat(*PLOT)
             else:
                 if self.chart_type == 1:
@@ -688,7 +689,6 @@ class Ui_MainWindow(object):
                         vchart.append(alt.vconcat(*sub_chart))
                     chart = alt.hconcat(*vchart)
                 else:
-                    PLOT.append(chart)
                     chart = alt.vconcat(*PLOT)
             self.chart.updateChart(chart)   # plot chart
 

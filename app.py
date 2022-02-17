@@ -49,15 +49,15 @@ class Ui_MainWindow(object):
         self.dimensionlist.setGeometry(QtCore.QRect(0, 110, 311, 281))
         self.dimensionlist.setObjectName("dimensionlist")
         self.dimensionlist.setDragEnabled(True)
-        self.dimensionlist.setAcceptDrops(True)
-        self.dimensionlist.setDefaultDropAction(QtCore.Qt.MoveAction)
+        #self.dimensionlist.setAcceptDrops(True)
+        #self.dimensionlist.setDefaultDropAction(QtCore.Qt.MoveAction)
 
         self.measurementlist = QtWidgets.QListWidget(self.frame)
         self.measurementlist.setGeometry(QtCore.QRect(0, 510, 311, 291))
         self.measurementlist.setObjectName("measurementlist")
         self.measurementlist.setDragEnabled(True)
-        self.measurementlist.setAcceptDrops(True)
-        self.measurementlist.setDefaultDropAction(QtCore.Qt.MoveAction)
+        #self.measurementlist.setAcceptDrops(True)
+        #self.measurementlist.setDefaultDropAction(QtCore.Qt.MoveAction)
 
         self.pushButton = QtWidgets.QPushButton(self.frame)
         self.pushButton.setGeometry(QtCore.QRect(10, 10, 151, 31))
@@ -115,6 +115,15 @@ class Ui_MainWindow(object):
         self.columnlist.itemChanged.connect(self.set_grid_table)
         self.columnlist.itemEntered.connect(self.set_grid_table)
         self.columnlist.itemActivated.connect(self.set_grid_table)
+
+        self.clear_col_button = QtWidgets.QPushButton(self.centralwidget)
+        self.clear_col_button.setGeometry(QtCore.QRect(1050, 30, 151, 31))
+        self.clear_col_button.clicked.connect(self.columnlist.clear)
+        self.clear_col_button.setObjectName("clear_col_button")
+        self.clear_row_button = QtWidgets.QPushButton(self.centralwidget)
+        self.clear_row_button.setGeometry(QtCore.QRect(1050, 80, 151, 31))
+        self.clear_row_button.setObjectName("clear_row_button")
+        self.clear_row_button.clicked.connect(self.rowlist.clear)
 
         self.Rowlabel = QtWidgets.QLabel(self.frame_2)
         self.Rowlabel.setGeometry(QtCore.QRect(20, 70, 71, 21))
@@ -223,6 +232,8 @@ class Ui_MainWindow(object):
         self.statisticbtn.setText(_translate("MainWindow", "Plot"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Grid Table"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Graph"))
+        self.clear_col_button.setText(_translate("MainWindow", "Clear Column"))
+        self.clear_row_button.setText(_translate("MainWindow", "Clear Row"))
 
     def file_selected(self):
         options = QFileDialog.Options()

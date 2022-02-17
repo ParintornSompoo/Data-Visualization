@@ -21,14 +21,6 @@ class Ui_FilterdimensionWindow(object):
         self.uncheck_all_button.setGeometry(QtCore.QRect(30, 70, 141, 41))
         self.uncheck_all_button.setObjectName("uncheck_all_button")
         self.uncheck_all_button.clicked.connect(self.clear_filter)
-        self.drill_down_button = QtWidgets.QPushButton(self.centralwidget)
-        self.drill_down_button.setGeometry(QtCore.QRect(620, 10, 141, 41))
-        self.drill_down_button.setObjectName("pushButton_4")
-        #self.drill_down_button.hide()
-        self.drill_up_button = QtWidgets.QPushButton(self.centralwidget)
-        self.drill_up_button.setGeometry(QtCore.QRect(620, 60, 141, 41))
-        self.drill_up_button.setObjectName("pushButton_5")
-        #self.drill_up_button.hide()
         FilterdimensionWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(FilterdimensionWindow)
@@ -43,8 +35,6 @@ class Ui_FilterdimensionWindow(object):
         self.confirm_button.setText(_translate("FilterdimensionWindow", "Confirm"))
         self.select_all_button.setText(_translate("FilterdimensionWindow", "Select All"))
         self.uncheck_all_button.setText(_translate("FilterdimensionWindow", "Uncheck All"))
-        self.drill_down_button.setText(_translate("FilterdimensionWindow", "Drill Down"))
-        self.drill_up_button.setText(_translate("FilterdimensionWindow", "Drill Up"))
     
     def clear_filter(self):
         for i in range(self.listWidget.count()):

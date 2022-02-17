@@ -3,7 +3,7 @@ import sys
 import json
 import pandas as pd
 from PyQt5 import QtCore, QtGui, QtWidgets , QtWebEngineWidgets
-from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication, QListView
+from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication, QListView , QMenu , QWidget
 from selectionwindow import Ui_SecondWindow
 from DatapreviewWindow import Ui_DatapreviewWindow
 from FilterdimensionWindow import Ui_FilterdimensionWindow
@@ -12,8 +12,9 @@ import altair as alt
 
 
 
-class Ui_MainWindow(object):
-    def __init__(self, MainWindow):
+class Ui_MainWindow(QtWidgets.QMainWindow,object):
+    def __init__(self, MainWindow,parent=None):
+        super(Ui_MainWindow, self).__init__(parent)
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1905, 1047)
 
@@ -102,7 +103,7 @@ class Ui_MainWindow(object):
         self.rowlist.doubleClicked.connect(self.getrowlistindex)
         self.rowlist.itemChanged.connect(self.set_grid_table)
         self.rowlist.itemEntered.connect(self.set_grid_table)
-        self.rowlist.itemActivated.connect(self.set_grid_table)
+        self.rowlist.installEventFilter(self)
 
         self.columnlist = QtWidgets.QListWidget(self.frame_2)
         self.columnlist.setGeometry(QtCore.QRect(100, 20, 591, 31))
@@ -114,7 +115,7 @@ class Ui_MainWindow(object):
         self.columnlist.doubleClicked.connect(self.getcolumnlistindex)
         self.columnlist.itemChanged.connect(self.set_grid_table)
         self.columnlist.itemEntered.connect(self.set_grid_table)
-        self.columnlist.itemActivated.connect(self.set_grid_table)
+        self.columnlist.installEventFilter(self)
 
         self.clear_col_button = QtWidgets.QPushButton(self.centralwidget)
         self.clear_col_button.setGeometry(QtCore.QRect(1050, 30, 151, 31))
@@ -213,8 +214,6 @@ class Ui_MainWindow(object):
         self.ui3 = Ui_FilterdimensionWindow()
         self.ui3.setupUi(self.window3)
         self.ui3.confirm_button.clicked.connect(self.set_filter)
-        self.ui3.drill_down_button.clicked.connect(self.drill_down)
-        self.ui3.drill_up_button.clicked.connect(self.drill_up)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -232,6 +231,7 @@ class Ui_MainWindow(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Graph"))
         self.clear_col_button.setText(_translate("MainWindow", "Clear Column"))
         self.clear_row_button.setText(_translate("MainWindow", "Clear Row"))
+    
 
     def file_selected(self):
         options = QFileDialog.Options()
@@ -306,7 +306,37 @@ class Ui_MainWindow(object):
             item = self.columnlist.item(index).text()
             if item in self.datetime_dimensions:
                 self.columnlist.item(index).setText(f"{item}(year)")
+    
+    def eventFilter(self, source, event):
+        if event.type() == QtCore.QEvent.ContextMenu and source is self.columnlist:
+            self.index = source.currentIndex().row()
+            self.columnselected = True
+            self.menu = QMenu()
+            self.action = QtWidgets.QAction("Drill down")
+            self.action2 = QtWidgets.QAction("Filter")
+            self.menu.addAction(self.action)
+            self.menu.addAction(self.action2)
+            self.action.triggered.connect(self.drill_down)
+            self.action2.triggered.connect(self.getcolumnlistindex)
 
+            if self.menu.exec_(event.globalPos()):
+                item = source.itemAt(event.pos())
+        if event.type() == QtCore.QEvent.ContextMenu and source is self.rowlist:
+            self.index = source.currentIndex().row()
+            self.columnselected = False
+            self.menu = QMenu()
+            self.action = QtWidgets.QAction("Drill down")
+            self.action2 = QtWidgets.QAction("Filter")
+            self.menu.addAction(self.action)
+            self.menu.addAction(self.action2)
+            self.action.triggered.connect(self.drill_down)
+            self.action2.triggered.connect(self.getrowlistindex)
+
+            if self.menu.exec_(event.globalPos()):
+                item = source.itemAt(event.pos())
+        return super().eventFilter(source, event)
+    
+    
     def drill_down(self):
         if self.columnselected:
             item = self.columnlist.item(self.index).text()
@@ -385,15 +415,11 @@ class Ui_MainWindow(object):
         elif item in self.dimensions:
             self.columnselected = True
             self.index = self.columnlist.currentIndex().row()
-            self.ui3.drill_up_button.hide()
-            self.ui3.drill_down_button.hide()
             self.filter_dimension_Window(self.index)
         for datetime in self.datetime_dimensions:
             if item.find(datetime) >= 0:
                 self.columnselected = True
                 self.index = self.columnlist.currentIndex().row()
-                self.ui3.drill_up_button.show()
-                self.ui3.drill_down_button.show()
                 self.filter_dimension_Window(self.index)
                 break
 
@@ -410,15 +436,11 @@ class Ui_MainWindow(object):
         elif item in self.dimensions:
             self.columnselected = False
             self.index = self.rowlist.currentIndex().row()
-            self.ui3.drill_up_button.hide()
-            self.ui3.drill_down_button.hide()
             self.filter_dimension_Window(self.index)
         for datetime in self.datetime_dimensions:
             if item.find(datetime) >= 0:
                 self.columnselected = False
                 self.index = self.rowlist.currentIndex().row()
-                self.ui3.drill_up_button.show()
-                self.ui3.drill_down_button.show()
                 self.filter_dimension_Window(self.index)
                 break
     
@@ -804,6 +826,7 @@ class Ui_MainWindow(object):
             return True
         else:
             return False
+    
 
 class Item(QtWidgets.QListWidgetItem):
     def __init__(self, *args, **kwargs):

@@ -1,5 +1,5 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
-
+import range_slider
 
 class Ui_SecondWindow(object):
     def setupUi(self, SecondWindow):
@@ -26,19 +26,13 @@ class Ui_SecondWindow(object):
         self.checkBox = QtWidgets.QCheckBox(self.centralwidget)
         self.checkBox.setGeometry(QtCore.QRect(130, 130, 70, 17))
         self.checkBox.setObjectName("checkBox")
-        self.horizontalSlider = QtWidgets.QSlider(self.centralwidget)
+        self.horizontalSlider = range_slider.RangeSlider(QtCore.Qt.Horizontal,self.centralwidget)
         self.horizontalSlider.setGeometry(QtCore.QRect(40, 190, 241, 22))
-        self.horizontalSlider.setOrientation(QtCore.Qt.Horizontal)
-        self.horizontalSlider.setObjectName("horizontalSlider")
+        self.horizontalSlider.setMinimumHeight(30)
         self.horizontalSlider.setMinimum(0)
         self.horizontalSlider.setMaximum(100)
-        self.horizontalSlider_2 = QtWidgets.QSlider(self.centralwidget)
-        self.horizontalSlider_2.setGeometry(QtCore.QRect(40, 240, 241, 22))
-        self.horizontalSlider_2.setOrientation(QtCore.Qt.Horizontal)
-        self.horizontalSlider_2.setObjectName("horizontalSlider_2")
-        self.horizontalSlider_2.setMinimum(0)
-        self.horizontalSlider_2.setMaximum(100)
-        self.horizontalSlider_2.setSliderPosition(100)
+        
+        self.horizontalSlider.setTickPosition(QtWidgets.QSlider.TicksBelow)
         self.label_2 = QtWidgets.QLabel(self.centralwidget)
         self.label_2.setGeometry(QtCore.QRect(20, 160, 91, 13))
         self.label_2.setObjectName("label_2")

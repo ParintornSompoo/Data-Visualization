@@ -49,15 +49,15 @@ class Ui_MainWindow(object):
         self.dimensionlist.setGeometry(QtCore.QRect(0, 110, 311, 281))
         self.dimensionlist.setObjectName("dimensionlist")
         self.dimensionlist.setDragEnabled(True)
-        #self.dimensionlist.setAcceptDrops(True)
-        #self.dimensionlist.setDefaultDropAction(QtCore.Qt.MoveAction)
+        self.dimensionlist.setAcceptDrops(True)
+        self.dimensionlist.setDefaultDropAction(QtCore.Qt.MoveAction)
 
         self.measurementlist = QtWidgets.QListWidget(self.frame)
         self.measurementlist.setGeometry(QtCore.QRect(0, 510, 311, 291))
         self.measurementlist.setObjectName("measurementlist")
         self.measurementlist.setDragEnabled(True)
-        #self.measurementlist.setAcceptDrops(True)
-        #self.measurementlist.setDefaultDropAction(QtCore.Qt.MoveAction)
+        self.measurementlist.setAcceptDrops(True)
+        self.measurementlist.setDefaultDropAction(QtCore.Qt.MoveAction)
 
         self.pushButton = QtWidgets.QPushButton(self.frame)
         self.pushButton.setGeometry(QtCore.QRect(10, 10, 151, 31))
@@ -202,8 +202,6 @@ class Ui_MainWindow(object):
         self.ui.pushButton.clicked.connect(self.set_measurement_filter)
         self.ui.horizontalSlider.sliderMoved.connect(self.update_minmax_label)
         self.ui.horizontalSlider.valueChanged.connect(self.update_minmax_label)
-        self.ui.horizontalSlider_2.sliderMoved.connect(self.update_minmax_label)
-        self.ui.horizontalSlider_2.valueChanged.connect(self.update_minmax_label)
 
 
         self.window2 = QtWidgets.QMainWindow()
@@ -470,21 +468,21 @@ class Ui_MainWindow(object):
         self.ui.label.setText(_translate("SecondWindow",measurement))
         self.Min = self.data[measurement].min()
         self.Max = self.data[measurement].max()
-        
+
         if measurement in self.measurement_filter.keys():
             min = self.measurement_filter[measurement]["min"]
             max = self.measurement_filter[measurement]["max"]
             min_pos = self.reverse_transform_range(min)
             max_pos = self.reverse_transform_range(max)
-            self.ui.horizontalSlider.setSliderPosition(int(min_pos))
-            self.ui.horizontalSlider_2.setSliderPosition(int(max_pos))
+            self.ui.horizontalSlider.setLow(int(min_pos))
+            self.ui.horizontalSlider.setHigh(int(max_pos))
             self.ui.checkBox.setCheckState(QtCore.Qt.Checked)
             self.ui.label_2.setText(_translate("SecondWindow", f"Min : {min}"))
             self.ui.label_3.setText(_translate("SecondWindow", f"Max : {max}"))
         else:
-            self.ui.horizontalSlider.setSliderPosition(0)
-            self.ui.horizontalSlider_2.setSliderPosition(100)
             self.ui.checkBox.setCheckState(QtCore.Qt.Unchecked)
+            self.ui.horizontalSlider.setLow(0)
+            self.ui.horizontalSlider.setHigh(100)
             self.ui.label_2.setText(_translate("SecondWindow", f"Min : {self.Min}"))
             self.ui.label_3.setText(_translate("SecondWindow", f"Max : {self.Max}"))
 
@@ -495,8 +493,8 @@ class Ui_MainWindow(object):
         self.window.show()
     
     def update_minmax_label(self):
-        min_value = self.ui.horizontalSlider.value()
-        max_value = self.ui.horizontalSlider_2.value()
+        min_value = self.ui.horizontalSlider.low()
+        max_value = self.ui.horizontalSlider.high()
         # transform range
         Min_Value = self.transform_range(min_value)
         Max_Value = self.transform_range(max_value)
@@ -506,8 +504,8 @@ class Ui_MainWindow(object):
         self.ui.label_3.setText(_translate("SecondWindow", f"Max : {Max_Value}"))
 
     def set_measurement_filter(self):
-        min_value = self.ui.horizontalSlider.value()
-        max_value = self.ui.horizontalSlider_2.value()
+        min_value = self.ui.horizontalSlider.low()
+        max_value = self.ui.horizontalSlider.high()
         # transform range
         Min_Value = self.transform_range(min_value)
         Max_Value = self.transform_range(max_value)

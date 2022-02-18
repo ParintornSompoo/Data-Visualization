@@ -1,7 +1,7 @@
 import os
 import sys
 import json
-from matplotlib import scale
+import hashlib
 import pandas as pd
 from PyQt5 import QtCore, QtGui, QtWidgets , QtWebEngineWidgets
 from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication, QListView , QMenu , QWidget
@@ -381,6 +381,10 @@ class Ui_MainWindow(QtWidgets.QMainWindow,object):
         metadata = json.load(metadata_json)
         file_name = self.file_path.split("/")[-1]
         if file_name in metadata.keys():
+            md5 = hashlib.md5(open(self.file_path, "rb").read()).hexdigest()
+            if md5 != metadata[file_name]["md5"]:
+                self.setDimensionsMeasurements()
+                return
             self.measurements = metadata[file_name]["measurements"]
             self.dimensions = metadata[file_name]["dimensions"]
             self.datetime_dimensions = metadata[file_name]["datetime"]
@@ -394,10 +398,12 @@ class Ui_MainWindow(QtWidgets.QMainWindow,object):
         else:
             metadata = {}
         file_name = self.file_path.split("/")[-1]
+        md5 = hashlib.md5(open(self.file_path, "rb").read()).hexdigest()
         metadata[file_name] = {}
         metadata[file_name]["measurements"] = self.measurements
         metadata[file_name]["dimensions"] = self.dimensions
         metadata[file_name]["datetime"] = self.datetime_dimensions
+        metadata[file_name]["md5"] = md5
 
         with open("metadata.json", 'w') as outfile:
             JSON = json.dumps(metadata, indent=4)

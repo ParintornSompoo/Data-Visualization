@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+from matplotlib import scale
 import pandas as pd
 from PyQt5 import QtCore, QtGui, QtWidgets , QtWebEngineWidgets
 from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication, QListView , QMenu , QWidget
@@ -751,16 +752,20 @@ class Ui_MainWindow(QtWidgets.QMainWindow,object):
                 alt_row.pop(0)
             tooltip.append(dimension)
         for measurement in measurements:
+            data = filtered_data.groupby(dimensions,as_index=False).agg(self.agg)
+            min_bar = 0
+            max_bar = 0
+            if min_bar > data[measurement].min() : min_bar = data[measurement].min()
+            if max_bar < data[measurement].max() : max_bar = data[measurement].max()
             plt = alt_plot.copy()
             if measurement in columnitem:
-                plt.append(alt_column[0](measurement))
+                plt.append(alt_column[0](measurement,scale=alt.Scale(domain=(min_bar, max_bar), clamp=True)))
             else:
-                plt.append(alt_row[0](measurement))
+                plt.append(alt_row[0](measurement,scale=alt.Scale(domain=(min_bar, max_bar), clamp=True)))
             plt.append(alt.Tooltip(tooltip+[measurement]))
-            data = filtered_data.groupby(dimensions,as_index=False).agg(self.agg)
             if self.chart_type == 0:        # bar charts
                 chart = (alt.Chart(data).mark_bar().encode(
-                    *plt
+                    *plt,
                     )
                     .resolve_scale(x="independent",y="independent")
                     .interactive()

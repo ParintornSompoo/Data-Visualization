@@ -302,6 +302,12 @@ class Ui_MainWindow(QtWidgets.QMainWindow,object):
             self.data[f"{DATETIME}(month)"] = datetime_date.dt.month
             self.data[f"{DATETIME}(day)"] = datetime_date.dt.day
 
+    def set_group_dimensions_to_data(self, item):
+        GROUP = item.split(",")
+        for group in GROUP:
+            _group = ",".join(GROUP)
+            self.data[f"{_group}({group})"] = self.data[group]
+
     def datetime_dimensions_show(self):
         for index in range(self.rowlist.count()):
             item = self.rowlist.item(index).text()
@@ -311,6 +317,18 @@ class Ui_MainWindow(QtWidgets.QMainWindow,object):
             item = self.columnlist.item(index).text()
             if item in self.datetime_dimensions:
                 self.columnlist.item(index).setText(f"{item}(year)")
+
+    def set_group_dimensions(self):
+        for index in range(self.rowlist.count()):
+            item = self.rowlist.item(index).text()
+            if item in self.group_dimension:
+                group_1 = item.split(",")[0]
+                self.rowlist.item(index).setText(f"{item}({group_1})")
+        for index in range(self.columnlist.count()):
+            item = self.columnlist.item(index).text()
+            if item in self.group_dimension:
+                group_1 = item.split(",")[0]
+                self.columnlist.item(index).setText(f"{item}({group_1})")
     
     def eventFilter(self, source, event):
         if event.type() == QtCore.QEvent.ContextMenu and source is self.columnlist:
@@ -356,24 +374,43 @@ class Ui_MainWindow(QtWidgets.QMainWindow,object):
     
     
     def drill_down(self):
+        rowlist = self.get_rowlist()
+        columnlist = self.get_columnlist()
+        # get item from listwidget
         if self.columnselected:
             item = self.columnlist.item(self.index).text()
         else:
             item = self.rowlist.item(self.index).text()
+        # datetime drill down
         if item.find("year") >= 0:
-            item = item.replace("year", "month")
+            ITEM = item.replace("year", "month")
         elif item.find("month") >= 0:
-            item = item.replace("month", "day")
-
-        rowlist = self.get_rowlist()
-        columnlist = self.get_columnlist()
-        if item in rowlist+columnlist:
-            return
-
-        if self.columnselected:
-            self.columnlist.insertItem(self.index+1,item)
+            ITEM = item.replace("month", "day")
         else:
-            self.rowlist.insertItem(self.index+1,item)
+            ITEM = None
+
+        # dimension drill down
+        if item.split("(")[0] in self.group_dimension:
+            GROUP = item.split("(")[0].split(",")
+            current_group = item.split("(")[-1][:-1]
+            index = None
+            for i, group in enumerate(GROUP):
+                if current_group == group:
+                    index = i + 1
+            if index >= len(GROUP):
+                return
+            if index != None:
+                next_group = GROUP[index]
+                group = item.split("(")[0]
+                ITEM = f"{group}({next_group})"
+            else:
+                return
+
+        if ITEM not in rowlist + columnlist:
+            if self.columnselected:
+                self.columnlist.insertItem(self.index+1, ITEM)
+            else:
+                self.rowlist.insertItem(self.index+1, ITEM)
 
     def drill_up(self):
         if self.columnselected:
@@ -389,12 +426,11 @@ class Ui_MainWindow(QtWidgets.QMainWindow,object):
         ITEM = ""
         for item in self.dimensionlist.selectedItems():
             ITEM += item.text() + ","
-            #print(item.text())
         ITEM = ITEM[:-1]
         item = QtWidgets.QListWidgetItem(ITEM)
         self.dimensionlist.addItem(item)
         self.group_dimension.append(ITEM)
-        print(self.group_dimension)
+        self.set_group_dimensions_to_data(ITEM)
         
     def set_listwidget(self):
         self.dimensionlist.clear()
@@ -614,7 +650,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow,object):
         dimensions = []
         for index in range(self.rowlist.count()):
             item = self.rowlist.item(index).text()
-            if item in self.dimensions:
+            if (item in self.data.columns) and (item not in self.measurements):
                 dimensions.append(item)
                 continue
             for datetime in self.datetime_dimensions:
@@ -623,7 +659,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow,object):
                     break
         for index in range(self.columnlist.count()):
             item = self.columnlist.item(index).text()
-            if item in self.dimensions:
+            if (item in self.data.columns) and (item not in self.measurements):
                 dimensions.append(item)
                 continue
             for datetime in self.datetime_dimensions:
@@ -672,6 +708,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow,object):
 
     def set_grid_table(self):
         self.datetime_dimensions_show()
+        self.set_group_dimensions()
         dimensions = self.get_dimensions()
         measurements = self.get_measurements()
 

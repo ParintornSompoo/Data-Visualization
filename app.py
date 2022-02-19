@@ -2,6 +2,7 @@ import os
 import sys
 import json
 import hashlib
+from types import NoneType
 import pandas as pd
 from PyQt5 import QtCore, QtGui, QtWidgets , QtWebEngineWidgets
 from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication, QListView , QMenu , QWidget
@@ -333,30 +334,32 @@ class Ui_MainWindow(QtWidgets.QMainWindow,object):
     def eventFilter(self, source, event):
         if event.type() == QtCore.QEvent.ContextMenu and source is self.columnlist:
             self.index = source.currentIndex().row()
-            self.columnselected = True
-            self.menu = QMenu()
-            self.action = QtWidgets.QAction("Drill down")
-            self.action2 = QtWidgets.QAction("Filter")
-            self.menu.addAction(self.action)
-            self.menu.addAction(self.action2)
-            self.action.triggered.connect(self.drill_down)
-            self.action2.triggered.connect(self.getcolumnlistindex)
+            if source.itemAt(event.pos()) != None:
+                self.columnselected = True
+                self.menu = QMenu()
+                self.action = QtWidgets.QAction("Drill down")
+                self.action2 = QtWidgets.QAction("Filter")
+                self.menu.addAction(self.action)
+                self.menu.addAction(self.action2)
+                self.action.triggered.connect(self.drill_down)
+                self.action2.triggered.connect(self.getcolumnlistindex)
 
-            if self.menu.exec_(event.globalPos()):
-                item = source.itemAt(event.pos())
+                if self.menu.exec_(event.globalPos()):
+                    item = source.itemAt(event.pos())
         if event.type() == QtCore.QEvent.ContextMenu and source is self.rowlist:
             self.index = source.currentIndex().row()
-            self.columnselected = False
-            self.menu = QMenu()
-            self.action = QtWidgets.QAction("Drill down")
-            self.action2 = QtWidgets.QAction("Filter")
-            self.menu.addAction(self.action)
-            self.menu.addAction(self.action2)
-            self.action.triggered.connect(self.drill_down)
-            self.action2.triggered.connect(self.getrowlistindex)
+            if source.itemAt(event.pos()) != None:
+                self.columnselected = False
+                self.menu = QMenu()
+                self.action = QtWidgets.QAction("Drill down")
+                self.action2 = QtWidgets.QAction("Filter")
+                self.menu.addAction(self.action)
+                self.menu.addAction(self.action2)
+                self.action.triggered.connect(self.drill_down)
+                self.action2.triggered.connect(self.getrowlistindex)
 
-            if self.menu.exec_(event.globalPos()):
-                item = source.itemAt(event.pos())
+                if self.menu.exec_(event.globalPos()):
+                    item = source.itemAt(event.pos())
         
         if event.type() == QtCore.QEvent.ContextMenu and source is self.dimensionlist:
             if len(self.dimensionlist.selectedItems()) >= 2:

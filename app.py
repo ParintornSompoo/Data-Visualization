@@ -1,3 +1,4 @@
+from operator import index
 import os
 import sys
 import json
@@ -53,8 +54,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow,object):
         self.dimensionlist.setGeometry(QtCore.QRect(0, 110, 311, 281))
         self.dimensionlist.setObjectName("dimensionlist")
         self.dimensionlist.setDragEnabled(True)
-        self.dimensionlist.setAcceptDrops(True)
-        self.dimensionlist.setDefaultDropAction(QtCore.Qt.MoveAction)
+        #self.dimensionlist.setAcceptDrops(True)
+        #self.dimensionlist.setDefaultDropAction(QtCore.Qt.MoveAction)
         self.dimensionlist.installEventFilter(self)
         self.dimensionlist.setSelectionMode(2)
         #self.dimensionlist.itemSelectionChanged.connect(self.group_dimension)
@@ -63,8 +64,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow,object):
         self.measurementlist.setGeometry(QtCore.QRect(0, 510, 311, 291))
         self.measurementlist.setObjectName("measurementlist")
         self.measurementlist.setDragEnabled(True)
-        self.measurementlist.setAcceptDrops(True)
-        self.measurementlist.setDefaultDropAction(QtCore.Qt.MoveAction)
+        #self.measurementlist.setAcceptDrops(True)
+        #self.measurementlist.setDefaultDropAction(QtCore.Qt.MoveAction)
 
         self.pushButton = QtWidgets.QPushButton(self.frame)
         self.pushButton.setGeometry(QtCore.QRect(10, 10, 151, 31))
@@ -335,44 +336,74 @@ class Ui_MainWindow(QtWidgets.QMainWindow,object):
         if event.type() == QtCore.QEvent.ContextMenu and source is self.columnlist:
             self.index = source.currentIndex().row()
             if source.itemAt(event.pos()) != None:
-                self.columnselected = True
-                self.menu = QMenu()
-                self.action = QtWidgets.QAction("Drill down")
-                self.action2 = QtWidgets.QAction("Filter")
-                self.menu.addAction(self.action)
-                self.menu.addAction(self.action2)
-                self.action.triggered.connect(self.drill_down)
-                self.action2.triggered.connect(self.getcolumnlistindex)
+                if self.columnlist.item(self.index).text().find(",") >= 0:
+                    self.columnselected = True
+                    self.menu = QMenu()
+                    self.action = QtWidgets.QAction("Drill down")
+                    self.action2 = QtWidgets.QAction("Filter")
+                    self.action3 = QtWidgets.QAction("Delete")
+                    self.menu.addAction(self.action)
+                    self.menu.addAction(self.action2)
+                    self.menu.addAction(self.action3)
+                    self.action.triggered.connect(self.drill_down)
+                    self.action2.triggered.connect(self.getcolumnlistindex)
+                    self.action3.triggered.connect(lambda:self.columnlist.takeItem(self.index))
+
+                else:
+                    self.menu = QMenu()
+                    self.action = QtWidgets.QAction("Filter")
+                    self.action2 = QtWidgets.QAction("Delete")
+                    self.menu.addAction(self.action)
+                    self.menu.addAction(self.action2)
+                    self.action.triggered.connect(self.getcolumnlistindex)
+                    self.action2.triggered.connect(lambda:self.columnlist.takeItem(self.index))
 
                 if self.menu.exec_(event.globalPos()):
                     item = source.itemAt(event.pos())
+
         if event.type() == QtCore.QEvent.ContextMenu and source is self.rowlist:
             self.index = source.currentIndex().row()
             if source.itemAt(event.pos()) != None:
-                self.columnselected = False
-                self.menu = QMenu()
-                self.action = QtWidgets.QAction("Drill down")
-                self.action2 = QtWidgets.QAction("Filter")
-                self.menu.addAction(self.action)
-                self.menu.addAction(self.action2)
-                self.action.triggered.connect(self.drill_down)
-                self.action2.triggered.connect(self.getrowlistindex)
+                if self.rowlist.item(self.index).text().find(",") >= 0:
+                    self.columnselected = False
+                    self.menu = QMenu()
+                    self.action = QtWidgets.QAction("Drill down")
+                    self.action2 = QtWidgets.QAction("Filter")
+                    self.action3 = QtWidgets.QAction("Delete")
+                    self.menu.addAction(self.action)
+                    self.menu.addAction(self.action2)
+                    self.menu.addAction(self.action3)
+                    self.action.triggered.connect(self.drill_down)
+                    self.action2.triggered.connect(self.getrowlistindex)
+                    self.action3.triggered.connect(lambda:self.rowlist.takeItem(self.index))
+
+                else:
+                    self.menu = QMenu()
+                    self.action = QtWidgets.QAction("Filter")
+                    self.action2 = QtWidgets.QAction("Delete")
+                    self.menu.addAction(self.action)
+                    self.menu.addAction(self.action2)
+                    self.action.triggered.connect(self.getrowlistindex)
+                    self.action2.triggered.connect(lambda:self.rowlist.takeItem(self.index))
 
                 if self.menu.exec_(event.globalPos()):
                     item = source.itemAt(event.pos())
         
         if event.type() == QtCore.QEvent.ContextMenu and source is self.dimensionlist:
+            self.index = source.currentIndex().row()
+            self.menu = QMenu()
+            self.action = QtWidgets.QAction("Delete")
+            self.menu.addAction(self.action)
+            self.action.triggered.connect(lambda:self.dimensionlist.takeItem(self.index))
+
             if len(self.dimensionlist.selectedItems()) >= 2:
                 self.menu = QMenu()
                 self.action = QtWidgets.QAction("Add")
-                self.action2 = QtWidgets.QAction("Delete")
                 self.menu.addAction(self.action)
-                self.menu.addAction(self.action2)
                 self.action.triggered.connect(self.add_group_dimension)
-                # self.action2.triggered.connect(self.getrowlistindex)
 
-                if self.menu.exec_(event.globalPos()):
-                    item = source.itemAt(event.pos())
+            if self.menu.exec_(event.globalPos()):
+                item = source.itemAt(event.pos())
         return super().eventFilter(source, event)
     
     
@@ -434,6 +465,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow,object):
         self.dimensionlist.addItem(item)
         self.group_dimension.append(ITEM)
         self.set_group_dimensions_to_data(ITEM)
+        self.dimensionlist.clearSelection()
         
     def set_listwidget(self):
         self.dimensionlist.clear()

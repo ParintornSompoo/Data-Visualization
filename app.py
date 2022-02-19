@@ -336,7 +336,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow,object):
         if event.type() == QtCore.QEvent.ContextMenu and source is self.columnlist:
             self.index = source.currentIndex().row()
             if source.itemAt(event.pos()) != None:
-                if self.columnlist.item(self.index).text().find(",") >= 0:
+                if self.columnlist.item(self.index).text().find("(") >= 0:
                     self.columnselected = True
                     self.menu = QMenu()
                     self.action = QtWidgets.QAction("Drill down")
@@ -364,7 +364,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow,object):
         if event.type() == QtCore.QEvent.ContextMenu and source is self.rowlist:
             self.index = source.currentIndex().row()
             if source.itemAt(event.pos()) != None:
-                if self.rowlist.item(self.index).text().find(",") >= 0:
+                if self.rowlist.item(self.index).text().find("(") >= 0:
                     self.columnselected = False
                     self.menu = QMenu()
                     self.action = QtWidgets.QAction("Drill down")

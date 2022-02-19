@@ -1,12 +1,10 @@
-from operator import index
 import os
 import sys
 import json
 import hashlib
-from types import NoneType
 import pandas as pd
 from PyQt5 import QtCore, QtGui, QtWidgets , QtWebEngineWidgets
-from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication, QListView , QMenu , QWidget
+from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication, QListView , QMenu
 from selectionwindow import Ui_SecondWindow
 from DatapreviewWindow import Ui_DatapreviewWindow
 from FilterdimensionWindow import Ui_FilterdimensionWindow
@@ -201,7 +199,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow,object):
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-        self.statisticbtn.clicked.connect(self.create_statistic)
+        self.statisticbtn.clicked.connect(self.creat_plot)
 
         self.window = QtWidgets.QMainWindow()
         self.ui = Ui_SecondWindow()
@@ -445,6 +443,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow,object):
                 self.columnlist.insertItem(self.index+1, ITEM)
             else:
                 self.rowlist.insertItem(self.index+1, ITEM)
+        self.set_grid_table()
 
     def drill_up(self):
         if self.columnselected:
@@ -745,6 +744,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow,object):
         self.datetime_dimensions_show()
         self.set_group_dimensions()
         dimensions = self.get_dimensions()
+        dimensions = self.format_group_dimensions(dimensions)
         measurements = self.get_measurements()
 
         # get aggregrate
@@ -826,7 +826,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow,object):
         self.data.columns = original_columns
         return filtered_data
 
-    def create_statistic(self):
+    def creat_plot(self):
         # get row columns
         dimensions = self.get_dimensions()
         measurements = self.get_measurements()
@@ -861,7 +861,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow,object):
             data = filtered_data.groupby(dimensions,as_index=False).agg(self.agg)
             min_bar = 0
             max_bar = 0
-            if len(dimensions) > 2:
+            if (len(dimensions) > 2) and (self.chart_type != 2):
                 DATA = filtered_data.groupby(dimensions[:2],as_index=False).agg(self.agg)
                 if min_bar > DATA[measurement].min() : min_bar = DATA[measurement].min()
                 if max_bar < DATA[measurement].max() : max_bar = DATA[measurement].max()
@@ -926,6 +926,15 @@ class Ui_MainWindow(QtWidgets.QMainWindow,object):
                 else:
                     chart = alt.vconcat(*PLOT)
             self.chart.updateChart(chart)   # plot chart
+
+    def format_group_dimensions(self, dimensions):
+        DIMENSIONS = []
+        for dimension in dimensions:
+            if dimension.split("(")[0] in self.group_dimension:
+                DIMENSIONS.append(dimension.split("(")[1][:-1])
+            else:
+                DIMENSIONS.append(dimension)
+        return DIMENSIONS
 
     def transform_range(self, value):
         NewRange = self.Max - self.Min

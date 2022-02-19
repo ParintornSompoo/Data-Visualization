@@ -35,6 +35,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow,object):
         self.measurement_filter = {}
         self.agg = {}
         self.chart_type = 0  # 0 : bar, 1 : pie , 2 : line
+        self.group_dimension = []
 
         self.setupUi(MainWindow)
     def setupUi(self, MainWindow):
@@ -53,6 +54,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow,object):
         self.dimensionlist.setDragEnabled(True)
         self.dimensionlist.setAcceptDrops(True)
         self.dimensionlist.setDefaultDropAction(QtCore.Qt.MoveAction)
+        self.dimensionlist.installEventFilter(self)
+        self.dimensionlist.setSelectionMode(2)
+        #self.dimensionlist.itemSelectionChanged.connect(self.group_dimension)
 
         self.measurementlist = QtWidgets.QListWidget(self.frame)
         self.measurementlist.setGeometry(QtCore.QRect(0, 510, 311, 291))
@@ -335,6 +339,19 @@ class Ui_MainWindow(QtWidgets.QMainWindow,object):
 
             if self.menu.exec_(event.globalPos()):
                 item = source.itemAt(event.pos())
+        
+        if event.type() == QtCore.QEvent.ContextMenu and source is self.dimensionlist:
+            if len(self.dimensionlist.selectedItems()) >= 2:
+                self.menu = QMenu()
+                self.action = QtWidgets.QAction("Add")
+                self.action2 = QtWidgets.QAction("Delete")
+                self.menu.addAction(self.action)
+                self.menu.addAction(self.action2)
+                self.action.triggered.connect(self.add_group_dimension)
+                # self.action2.triggered.connect(self.getrowlistindex)
+
+                if self.menu.exec_(event.globalPos()):
+                    item = source.itemAt(event.pos())
         return super().eventFilter(source, event)
     
     
@@ -367,6 +384,17 @@ class Ui_MainWindow(QtWidgets.QMainWindow,object):
             pass
         elif item.find("month") >= 0:
             pass
+    
+    def add_group_dimension(self):
+        ITEM = ""
+        for item in self.dimensionlist.selectedItems():
+            ITEM += item.text() + ","
+            #print(item.text())
+        ITEM = ITEM[:-1]
+        item = QtWidgets.QListWidgetItem(ITEM)
+        self.dimensionlist.addItem(item)
+        self.group_dimension.append(ITEM)
+        print(self.group_dimension)
         
     def set_listwidget(self):
         self.dimensionlist.clear()

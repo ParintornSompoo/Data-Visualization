@@ -761,8 +761,13 @@ class Ui_MainWindow(QtWidgets.QMainWindow,object):
             data = filtered_data.groupby(dimensions,as_index=False).agg(self.agg)
             min_bar = 0
             max_bar = 0
-            if min_bar > data[measurement].min() : min_bar = data[measurement].min()
-            if max_bar < data[measurement].max() : max_bar = data[measurement].max()
+            if len(dimensions) > 2:
+                DATA = filtered_data.groupby(dimensions[:2],as_index=False).agg(self.agg)
+                if min_bar > DATA[measurement].min() : min_bar = DATA[measurement].min()
+                if max_bar < DATA[measurement].max() : max_bar = DATA[measurement].max()
+            else:
+                if min_bar > data[measurement].min() : min_bar = data[measurement].min()
+                if max_bar < data[measurement].max() : max_bar = data[measurement].max()
             plt = alt_plot.copy()
             if measurement in columnitem:
                 plt.append(alt_column[0](measurement,scale=alt.Scale(domain=(min_bar, max_bar), clamp=True)))

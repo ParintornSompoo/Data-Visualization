@@ -517,7 +517,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow,object):
                 self.columnlist.insertItem(self.index,i)
             self.columnselected = True
             self.secondwindow(self.index)
-        elif item in self.dimensions:
+        elif (item in self.data.columns) and (item not in self.measurements):
             self.columnselected = True
             self.index = self.columnlist.currentIndex().row()
             self.filter_dimension_Window(self.index)
@@ -796,6 +796,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow,object):
         self.data.columns = [column.replace("-", "_") for column in self.data.columns]
         self.data.columns = [column.replace("(", "_") for column in self.data.columns]
         self.data.columns = [column.replace(")", "") for column in self.data.columns]
+        self.data.columns = [column.replace(",", "") for column in self.data.columns]
         # dimensions filter
         for key in self.filter:
             original_key = key
@@ -803,6 +804,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow,object):
             key = key.replace("-","_")
             key = key.replace("(","_")
             key = key.replace(")","")
+            key = key.replace(",","")
             query += f"{key} == ["
             for selected in self.filter[original_key]:
                 if self.is_datetime(original_key):

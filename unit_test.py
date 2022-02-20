@@ -1,6 +1,6 @@
 import pandas as pd
 import unittest
-from function import is_datetime, transform_range, reverse_transform_range, get_filter_data
+from function import is_datetime, transform_range, reverse_transform_range
 
 class TestStringMethods(unittest.TestCase):
 

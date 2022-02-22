@@ -1,6 +1,7 @@
 import pandas as pd
+from pandas.testing import assert_frame_equal
 import unittest
-from function import is_datetime, transform_range, reverse_transform_range
+from function import is_datetime, transform_range, reverse_transform_range, get_filter_data
 
 class TestStringMethods(unittest.TestCase):
 
@@ -71,6 +72,47 @@ class TestStringMethods(unittest.TestCase):
         self.assertEqual(reverse_transform_range(-50, _range), 25)
         self.assertEqual(reverse_transform_range(0, _range), 50)
         self.assertEqual(reverse_transform_range(50, _range), 75)
-    
+
+    def test_get_filter_data(self):
+        '''
+        test filter data function
+
+        Parameters:
+        data (pandas dataframe): data
+        dimension filter (dict): selected dimension
+        measurement filter (dict): selected measurement
+        '''
+        DATA = {"id":   ["a","a","b","b","c","c","c","d"],
+                "value": [1,  2,  3,  4,  5,  6,  7,  8]}
+        data = pd.DataFrame(DATA)
+
+        df1 = pd.DataFrame({"id":["a","a"],"value": [1,  2]}).reset_index(drop=True)
+        df2 = get_filter_data(data,{"id":"a"},{}).reset_index(drop=True)
+        assert_frame_equal(df1, df2)
+
+        df1 = pd.DataFrame({"id":["b","b"],"value": [3,  4]}).reset_index(drop=True)
+        df2 = get_filter_data(data,{"id":"b"},{}).reset_index(drop=True)
+        assert_frame_equal(df1, df2)
+
+        df1 = pd.DataFrame({"id":["c","c","c"],"value": [5,  6,  7]}).reset_index(drop=True)
+        df2 = get_filter_data(data,{"id":"c"},{}).reset_index(drop=True)
+        assert_frame_equal(df1, df2)
+
+        df1 = pd.DataFrame({"id":["c","c"],"value": [5,  6]}).reset_index(drop=True)
+        df2 = get_filter_data(data,{"id":"c"},{"value":{"min":5,"max":6}}).reset_index(drop=True)
+        assert_frame_equal(df1, df2)
+
+        df1 = pd.DataFrame({"id":["c"],"value": [5]}).reset_index(drop=True)
+        df2 = get_filter_data(data,{"id":"c"},{"value":{"min":5,"max":5}}).reset_index(drop=True)
+        assert_frame_equal(df1, df2)
+
+        df1 = pd.DataFrame({"id":["c","c"],"value": [6,  7]}).reset_index(drop=True)
+        df2 = get_filter_data(data,{"id":"c"},{"value":{"min":6,"max":7}}).reset_index(drop=True)
+        assert_frame_equal(df1, df2)
+
+        df1 = pd.DataFrame({"id":["d"],"value": [8]}).reset_index(drop=True)
+        df2 = get_filter_data(data,{"id":"d"},{"value":{"min":1,"max":8}}).reset_index(drop=True)
+        assert_frame_equal(df1, df2)
+
 if __name__ == '__main__':
     unittest.main()

@@ -1,7 +1,7 @@
 import pandas as pd
 from pandas.testing import assert_frame_equal
 import unittest
-from function import is_datetime, transform_range, reverse_transform_range, get_filter_data
+from function import is_datetime, transform_range, reverse_transform_range, get_filter_data, union_data
 
 class TestStringMethods(unittest.TestCase):
 
@@ -114,5 +114,26 @@ class TestStringMethods(unittest.TestCase):
         df2 = get_filter_data(data,{"id":"d"},{"value":{"min":1,"max":8}}).reset_index(drop=True)
         assert_frame_equal(df1, df2)
 
+        df1 = pd.DataFrame({"id":["a","a","b","b"],"value": [1,  2,  3,  4]}).reset_index(drop=True)
+        df2 = get_filter_data(data,{},{"value":{"min":1,"max":4}}).reset_index(drop=True)
+        assert_frame_equal(df1, df2)
+
+        df1 = pd.DataFrame({"id":["c","c","c","d"],"value": [5,  6,  7,  8]}).reset_index(drop=True)
+        df2 = get_filter_data(data,{},{"value":{"min":5,"max":8}}).reset_index(drop=True)
+        assert_frame_equal(df1, df2)
+
+    def test_union_data(self):
+        DATA = {"id":   ["a","a","b","b","c","c","c","d"],
+                "value": [1,  2,  3,  4,  5,  6,  7,  8]}
+        data = pd.DataFrame(DATA).reset_index(drop=True)
+
+        df1 = pd.DataFrame({"id":["a","a","b","b"],"value": [1,  2,  3,  4]})
+        df2 = union_data(df1,"test_union.csv")
+        assert_frame_equal(data, df2)
+
+        df1 = pd.DataFrame({"id":["a","a","b","b"],"value": [1,  2,  3,  4]})
+        df2 = union_data(df1,"test_union.xlsx")
+        assert_frame_equal(data, df2)
+        
 if __name__ == '__main__':
     unittest.main()

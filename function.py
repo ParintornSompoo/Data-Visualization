@@ -53,3 +53,14 @@ def get_filter_data(data, dimension_filter, measurement_filter):
         filtered_data = data
     data.columns = original_columns
     return filtered_data
+
+def union_data(data, path):
+    extension = path.split(".")[-1]
+    if extension == "csv":
+        union = pd.read_csv(path, encoding="ISO-8859-1")
+    elif extension == "xlsx":
+        union = pd.read_excel(path, engine='openpyxl')
+    else:
+        union = None
+    data = pd.concat([data, union])
+    return data.reset_index(drop=True)

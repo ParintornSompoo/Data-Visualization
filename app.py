@@ -258,7 +258,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow,object):
                 data = pd.read_excel(file_name, engine='openpyxl')
             else:
                 data = None
-            self.data = pd.concat([self.data, data])    # union data 
+            self.data = pd.concat([self.data, data]).reset_index(drop=True)    # union data 
 
     def read_file(self):
         if self.file_path != "":

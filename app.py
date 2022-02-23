@@ -915,7 +915,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow,object):
                 if self.chart_type == 1:
                     hchart = []
                     for sub_chart in CHART:
-                        hchart.append(alt.hconcat(*sub_chart))
+                        hchart.append(alt.hconcat(*sub_chart).resolve_scale(theta="independent",color="independent"))
                     chart = alt.vconcat(*hchart)
                 else:
                     chart = alt.hconcat(*PLOT)
@@ -923,7 +923,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow,object):
                 if self.chart_type == 1:
                     vchart = []
                     for sub_chart in CHART:
-                        vchart.append(alt.vconcat(*sub_chart))
+                        vchart.append(alt.vconcat(*sub_chart).resolve_scale(theta="independent",color="independent"))
                     chart = alt.hconcat(*vchart)
                 else:
                     chart = alt.vconcat(*PLOT)

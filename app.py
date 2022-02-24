@@ -895,9 +895,11 @@ class Ui_MainWindow(QtWidgets.QMainWindow,object):
                         color=alt.Color(dimension)
                     )
                     for measurement in measurements:
-                        base = BASE.encode(
-                            theta=alt.Theta(measurement),
-                            tooltip=alt.Tooltip([dimension,measurement])
+                        base = (BASE.encode(
+                                theta=alt.Theta(measurement),
+                                tooltip=alt.Tooltip([dimension,measurement])
+                            )
+                            .properties(title=f"{self.MODE[measurement]} of {measurement}")
                         )
                         sub_chart.append(base)
                     CHART.append(sub_chart)

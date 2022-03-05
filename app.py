@@ -301,6 +301,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow,object):
                 self.dimensions.append(col)
             elif col.lower().find("code") >= 0:
                 self.dimensions.append(col)
+            elif col.lower().find("year") >= 0:
+                self.dimensions.append(col)
             else:
                 self.measurements.append(col)
         self.set_datetime_dimensions()
@@ -864,10 +866,16 @@ class Ui_MainWindow(QtWidgets.QMainWindow,object):
         PLOT = []
         for dimension in dimensions:
             if dimension in columnitem:
-                alt_plot.append(alt_column[0](f"{dimension}:O"))
+                if dimension.split("(")[0] in self.datetime_dimensions:
+                    alt_plot.append(alt_column[0](f"{dimension}:O"))
+                else:
+                    alt_plot.append(alt_column[0](f"{dimension}"))
                 alt_column.pop(0)
             else:
-                alt_plot.append(alt_row[0](f"{dimension}:O"))
+                if dimension.split("(")[0] in self.datetime_dimensions:
+                    alt_plot.append(alt_row[0](f"{dimension}:O"))
+                else:
+                    alt_plot.append(alt_row[0](f"{dimension}"))
                 alt_row.pop(0)
             tooltip.append(dimension)
         for measurement in measurements:

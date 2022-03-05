@@ -237,13 +237,24 @@ class Ui_MainWindow(QtWidgets.QMainWindow,object):
         self.clear_col_button.setText(_translate("MainWindow", "Clear Column"))
         self.clear_row_button.setText(_translate("MainWindow", "Clear Row"))
     
+    def clear_grid_table(self):
+        self.tableWidget.clear()
+        self.tableWidget.setRowCount(0)
+        self.tableWidget.setColumnCount(0)
 
     def file_selected(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         file_path, _ = QFileDialog.getOpenFileName()     # selected file
         if file_path != "":
+            self.filter = {}
+            self.measurement_filter = {}
+            self.MODE = {}
+            self.agg = {}
             self.file_path = file_path
+            self.rowlist.clear()
+            self.columnlist.clear()
+            self.clear_grid_table()
             self.read_file()
         
     def union_data(self):       # from  union button

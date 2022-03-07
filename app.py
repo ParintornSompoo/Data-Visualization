@@ -855,12 +855,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow,object):
             alt_column = [alt.X, alt.Column, alt.Color]
             alt_row = [alt.Y, alt.Row, alt.Color]
         else:
-            if dimensions[0] in columnitem:
-                alt_column = [alt.Column, alt.X, alt.Color]
-                alt_row = [alt.Y, alt.Row, alt.Color]
-            else:
-                alt_column = [alt.X, alt.Column, alt.Color]
-                alt_row = [alt.Row, alt.Y, alt.Color]
+            alt_column = [alt.Column, alt.X, alt.Color]
+            alt_row = [alt.Row, alt.Y, alt.Color]
         alt_plot = []
         tooltip = []
         PLOT = []

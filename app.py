@@ -869,13 +869,13 @@ class Ui_MainWindow(QtWidgets.QMainWindow,object):
                 if dimension.split("(")[0] in self.datetime_dimensions:
                     alt_plot.append(alt_column[0](f"{dimension}:O"))
                 else:
-                    alt_plot.append(alt_column[0](f"{dimension}"))
+                    alt_plot.append(alt_column[0](f"{dimension}:N"))
                 alt_column.pop(0)
             else:
                 if dimension.split("(")[0] in self.datetime_dimensions:
                     alt_plot.append(alt_row[0](f"{dimension}:O"))
                 else:
-                    alt_plot.append(alt_row[0](f"{dimension}"))
+                    alt_plot.append(alt_row[0](f"{dimension}:N"))
                 alt_row.pop(0)
             tooltip.append(dimension)
         for measurement in measurements:
